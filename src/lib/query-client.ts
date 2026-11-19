@@ -2,7 +2,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { focusManager, onlineManager, QueryClient } from '@tanstack/react-query';
 import { AppState, Platform } from 'react-native';
 
-import { isRetryableError } from '@/utils/errors';
+import { isRetryableError, isSessionNotIdentified } from '@/utils/errors';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -13,7 +13,10 @@ export const queryClient = new QueryClient({
       retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
     },
     mutations: {
-      retry: 0,
+      // Ações não se repetem sozinhas, exceto quando o banco avisa que a sessão não foi
+      // identificada (ele recusa antes de alterar algo, então repetir é seguro).
+      retry: (failureCount, error) => failureCount < 2 && isSessionNotIdentified(error),
+      retryDelay: (attempt) => Math.min(500 * 2 ** attempt, 2000),
     },
   },
 });

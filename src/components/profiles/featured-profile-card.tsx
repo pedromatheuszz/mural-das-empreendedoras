@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     height: CARD_HEIGHT,
     borderRadius: radius.xxl,
     overflow: 'hidden',
-    backgroundColor: palette.wine700,
+    backgroundColor: palette.purple700,
     ...shadows.raised,
   },
   pressed: {

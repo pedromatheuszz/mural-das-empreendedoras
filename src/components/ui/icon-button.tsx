@@ -10,7 +10,7 @@ const VARIANTS: Record<Variant, { background: string; pressed: string; icon: str
   ghost: { background: 'transparent', pressed: colors.surfaceMuted, icon: colors.text, border: 'transparent' },
   glass: { background: 'rgba(255,255,255,0.92)', pressed: palette.white, icon: colors.text, border: 'transparent' },
   primary: { background: colors.primary, pressed: colors.primaryPressed, icon: colors.onPrimary, border: colors.primary },
-  soft: { background: colors.accentSoft, pressed: palette.rose300, icon: colors.primary, border: colors.accentSoft },
+  soft: { background: colors.accentSoft, pressed: palette.lilac300, icon: colors.primary, border: colors.accentSoft },
 };
 
 type IconButtonProps = {

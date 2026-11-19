@@ -211,21 +211,47 @@ async function afterSignIn(): Promise<AuthSession> {
   return current;
 }
 
+/** Restauração da sessão em andamento (as requisições esperam por ela). */
+let restoring: Promise<AuthSession | null> | null = null;
+/** Pedido de JWT em andamento (várias telas pedindo ao mesmo tempo fazem uma chamada só). */
+let tokenRequest: Promise<string | null> | null = null;
+
+async function restore(): Promise<AuthSession | null> {
+  await loadCookies();
+  if (!isWeb && Object.keys(cookies).length === 0) return null;
+  try {
+    return await fetchSession();
+  } catch (error) {
+    if (error instanceof AuthError) throw error;
+    // Sem internet: usa a última sessão conhecida, se ainda não expirou.
+    const raw = await secureStorage.getItem(SESSION_STORAGE_KEY).catch(() => null);
+    const cached = raw ? (JSON.parse(raw) as AuthSession) : null;
+    session = cached && new Date(cached.expiresAt).getTime() > Date.now() ? cached : null;
+    return session;
+  }
+}
+
+async function requestToken(): Promise<string | null> {
+  try {
+    const { data } = await request<{ token?: string }>('/token', { method: 'GET' });
+    rememberJwt(data?.token);
+  } catch (error) {
+    if (error instanceof AuthError && error.status === 401) {
+      await clearLocalSession(true);
+      return null;
+    }
+    throw error;
+  }
+  return jwt?.token ?? null;
+}
+
 export const neonAuth = {
   /** Restaura a sessão salva no aparelho. Sem internet, mantém a usuária desconectada. */
-  async restoreSession(): Promise<AuthSession | null> {
-    await loadCookies();
-    if (!isWeb && Object.keys(cookies).length === 0) return null;
-    try {
-      return await fetchSession();
-    } catch (error) {
-      if (error instanceof AuthError) throw error;
-      // Sem internet: usa a última sessão conhecida, se ainda não expirou.
-      const raw = await secureStorage.getItem(SESSION_STORAGE_KEY).catch(() => null);
-      const cached = raw ? (JSON.parse(raw) as AuthSession) : null;
-      session = cached && new Date(cached.expiresAt).getTime() > Date.now() ? cached : null;
-      return session;
-    }
+  restoreSession(): Promise<AuthSession | null> {
+    restoring ??= restore().finally(() => {
+      restoring = null;
+    });
+    return restoring;
   },
 
   getSession(): AuthSession | null {
@@ -239,19 +265,15 @@ export const neonAuth = {
 
   /** JWT para a Data API. Renova sozinho quando está perto de expirar. */
   async getAccessToken(): Promise<string | null> {
+    // Uma tela aberta direto (link, recarregar a página) não pode sair sem o token
+    // enquanto a sessão salva ainda está sendo restaurada.
+    if (restoring) await restoring.catch(() => null);
     if (jwt && jwt.expiresAt - JWT_SAFETY_MS > Date.now()) return jwt.token;
     if (!session) return null;
-    try {
-      const { data } = await request<{ token?: string }>('/token', { method: 'GET' });
-      rememberJwt(data?.token);
-    } catch (error) {
-      if (error instanceof AuthError && error.status === 401) {
-        await clearLocalSession(true);
-        return null;
-      }
-      throw error;
-    }
-    return jwt?.token ?? null;
+    tokenRequest ??= requestToken().finally(() => {
+      tokenRequest = null;
+    });
+    return tokenRequest;
   },
 
   async signInWithPassword(email: string, password: string): Promise<AuthSession> {

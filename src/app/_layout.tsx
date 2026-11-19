@@ -120,6 +120,7 @@ function RootNavigator() {
         <Stack.Screen name="admin/profile/[id]" />
         <Stack.Screen name="admin/edit/[id]" />
         <Stack.Screen name="admin/roles" />
+        <Stack.Screen name="claim/[id]" options={{ animation: 'slide_from_bottom' }} />
       </Stack.Protected>
 
       <Stack.Screen name="reset-password" />

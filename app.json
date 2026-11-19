@@ -7,8 +7,8 @@
     "icon": "./assets/images/icon.png",
     "scheme": "hubempreendedoras",
     "userInterfaceStyle": "light",
-    "backgroundColor": "#FBF8F5",
-    "primaryColor": "#6B1D3A",
+    "backgroundColor": "#FBF9FD",
+    "primaryColor": "#491174",
     "description": "Mural de empreendedorismo feminino: crie o perfil do seu negócio, divulgue seus serviços e seja descoberta por novas clientes e parceiras.",
     "ios": {
       "bundleIdentifier": "br.com.hubempreendedoras.app",
@@ -25,7 +25,7 @@
     "android": {
       "package": "br.com.hubempreendedoras.app",
       "adaptiveIcon": {
-        "backgroundColor": "#6B1D3A",
+        "backgroundColor": "#491174",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -44,15 +44,15 @@
       "output": "single",
       "favicon": "./assets/images/favicon.png",
       "name": "Mural das Empreendedoras",
-      "themeColor": "#6B1D3A",
-      "backgroundColor": "#FBF8F5"
+      "themeColor": "#491174",
+      "backgroundColor": "#FBF9FD"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#6B1D3A",
+          "backgroundColor": "#491174",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 120
         }

@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { ProfileClaimPrompt } from '@/components/claims/claim-cards';
 import { CommunityBanner } from '@/components/profiles/community-banner';
 import { profileToView, ProfileView } from '@/components/profiles/profile-view';
 import { AppText } from '@/components/ui/app-text';
@@ -106,18 +107,21 @@ export default function EntrepreneurProfileScreen() {
       }
       footer={
         isOwner ? null : (
-          <Pressable
-            onPress={() => router.push({ pathname: '/report/[id]', params: { id: profile.id, name: profile.business_name } })}
-            accessibilityRole="button"
-            accessibilityLabel="Denunciar este perfil"
-            hitSlop={8}
-            style={({ pressed }) => [styles.report, pressed ? styles.pressed : null]}
-          >
-            <Ionicons name="flag-outline" size={16} color={colors.textSecondary} />
-            <AppText variant="smallStrong" color={colors.textSecondary}>
-              Denunciar perfil
-            </AppText>
-          </Pressable>
+          <View style={styles.footer}>
+            <ProfileClaimPrompt profile={profile} />
+            <Pressable
+              onPress={() => router.push({ pathname: '/report/[id]', params: { id: profile.id, name: profile.business_name } })}
+              accessibilityRole="button"
+              accessibilityLabel="Denunciar este perfil"
+              hitSlop={8}
+              style={({ pressed }) => [styles.report, pressed ? styles.pressed : null]}
+            >
+              <Ionicons name="flag-outline" size={16} color={colors.textSecondary} />
+              <AppText variant="smallStrong" color={colors.textSecondary}>
+                Denunciar perfil
+              </AppText>
+            </Pressable>
+          </View>
         )
       }
     />
@@ -136,6 +140,9 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     borderRadius: radius.md,
     backgroundColor: colors.primarySoft,
+  },
+  footer: {
+    gap: spacing.md,
   },
   report: {
     flexDirection: 'row',

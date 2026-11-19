@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
+import { ClaimEntryCard } from '@/components/claims/claim-cards';
 import { useDialog } from '@/components/feedback/dialog-provider';
 import { useToast } from '@/components/feedback/toast-provider';
 import { StatusBadge } from '@/components/profiles/badges';
@@ -20,6 +21,7 @@ import { APP_VERSION, COMMUNITY } from '@/constants/app';
 import { colors, radius, spacing } from '@/constants/theme';
 import { RolePill } from '@/components/admin/role-pill';
 import { useAccount } from '@/hooks/use-account';
+import { useScreenScrollToTop } from '@/hooks/use-screen-scroll-to-top';
 import { usePermissions, useRefreshRoleOnFocus } from '@/hooks/use-permissions';
 import { useMyProfile } from '@/hooks/use-profiles';
 import { useAuth } from '@/providers/auth-provider';
@@ -28,6 +30,7 @@ import type { EntrepreneurProfile } from '@/types/models';
 import { formatDate } from '@/utils/format';
 
 export default function MeScreen() {
+  const scrollRef = useScreenScrollToTop();
   const { user } = useAuth();
   const account = useAccount();
   const permissions = usePermissions();
@@ -53,7 +56,7 @@ export default function MeScreen() {
   };
 
   return (
-    <Screen scroll contentStyle={{ paddingBottom: tabBarSpace }}>
+    <Screen scroll scrollRef={scrollRef} contentStyle={{ paddingBottom: tabBarSpace }}>
       <View style={styles.header}>
         <Avatar uri={profile?.profile_image_url} name={name} size={88} ring />
         <View style={styles.headerTexts}>
@@ -89,13 +92,16 @@ export default function MeScreen() {
         ) : profile ? (
           <BusinessCard profile={profile} />
         ) : (
-          <Card style={styles.createCard}>
-            <AppText variant="heading">Crie o perfil do seu negócio</AppText>
-            <AppText variant="body" color={colors.textSecondary}>
-              Divulgue sua marca e seus serviços para todas as usuárias do Mural.
-            </AppText>
-            <Button title="Criar perfil empresarial" icon="add" onPress={() => router.push('/profile/create')} fullWidth />
-          </Card>
+          <>
+            <ClaimEntryCard />
+            <Card style={styles.createCard}>
+              <AppText variant="heading">Crie o perfil do seu negócio</AppText>
+              <AppText variant="body" color={colors.textSecondary}>
+                Divulgue sua marca e seus serviços para todas as usuárias do Mural.
+              </AppText>
+              <Button title="Criar perfil empresarial" icon="add" onPress={() => router.push('/profile/create')} fullWidth />
+            </Card>
+          </>
         )}
 
         {permissions.isStaff ? (

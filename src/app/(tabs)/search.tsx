@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type ComponentRef } from 'react';
 import { ActivityIndicator, FlatList, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useTabBarSpace } from '@/components/navigation/tab-bar';
+import { useTabBarSpace, useTabScrollToTop } from '@/components/navigation/tab-bar';
 import { CategoryFilter, CategoryGrid } from '@/components/profiles/category-filter';
 import { ProfileCard, ProfileCardSkeleton } from '@/components/profiles/profile-card';
 import { AppText } from '@/components/ui/app-text';
@@ -15,12 +15,16 @@ import { getCategory } from '@/constants/categories';
 import { colors, fonts, MAX_CONTENT_WIDTH, radius, shadows, spacing } from '@/constants/theme';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { useSearchProfiles } from '@/hooks/use-profiles';
+import type { ProfileSummary } from '@/types/models';
 
 export default function SearchScreen() {
   const insets = useSafeAreaInsets();
   const tabBarSpace = useTabBarSpace();
   const { focus } = useLocalSearchParams<{ focus?: string }>();
   const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
+  // Tocar em "Buscar" com a aba já aberta volta ao topo dos resultados.
+  const resultsRef = useRef<FlatList<ProfileSummary>>(null);
+  useTabScrollToTop(resultsRef);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<string | null>(null);
   const debounced = useDebouncedValue(query.trim(), 350);
@@ -115,6 +119,7 @@ export default function SearchScreen() {
 
       {body ?? (
         <FlatList
+          ref={resultsRef}
           data={items}
           keyExtractor={(item) => item.id}
           keyboardDismissMode="on-drag"

@@ -8,6 +8,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 type PublicationStatus = 'draft' | 'published' | 'unpublished' | 'suspended';
 type ReportReason = 'spam' | 'inappropriate' | 'fake' | 'scam' | 'other';
 type ReportStatus = 'open' | 'reviewing' | 'resolved' | 'dismissed';
+type ClaimStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
 /** Cargo gravado em user_roles. Sem linha = empreendedora. */
 type MemberRole = 'developer' | 'administrator';
 /** Cargo efetivo devolvido por my_role() e list_members(). */
@@ -127,6 +128,22 @@ export type Database = {
           },
         ];
       };
+      profile_claims: {
+        Row: {
+          id: string;
+          profile_id: string;
+          user_id: string;
+          message: string | null;
+          status: ClaimStatus;
+          review_note: string | null;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          created_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       profile_reports: {
         Row: {
           id: string;
@@ -209,6 +226,42 @@ export type Database = {
         Args: { target_email: string; new_role: RoleName };
         Returns: { id: string; email: string; role: RoleName }[];
       };
+      request_profile_claim: {
+        Args: { target_profile_id: string; note?: string | null };
+        Returns: Database['public']['Tables']['profile_claims']['Row'];
+      };
+      cancel_profile_claim: { Args: { target_claim_id: string }; Returns: undefined };
+      my_profile_claim: {
+        Args: never;
+        Returns: {
+          id: string;
+          profile_id: string;
+          business_name: string;
+          status: ClaimStatus;
+          review_note: string | null;
+          created_at: string;
+          reviewed_at: string | null;
+        }[];
+      };
+      list_pending_claims: {
+        Args: never;
+        Returns: {
+          id: string;
+          profile_id: string;
+          business_name: string;
+          entrepreneur_name: string;
+          instagram_url: string | null;
+          account_name: string;
+          account_email: string;
+          message: string | null;
+          created_at: string;
+        }[];
+      };
+      review_profile_claim: {
+        Args: { target_claim_id: string; approve: boolean; note?: string | null };
+        Returns: undefined;
+      };
+      link_profile_to_account: { Args: { target_profile_id: string; target_email: string }; Returns: undefined };
       list_open_reports: {
         Args: { page_size?: number };
         Returns: {
@@ -233,6 +286,7 @@ export type Database = {
       publication_status: PublicationStatus;
       report_reason: ReportReason;
       report_status: ReportStatus;
+      claim_status: ClaimStatus;
       member_role: MemberRole;
     };
     CompositeTypes: { [_ in never]: never };

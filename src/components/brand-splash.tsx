@@ -5,7 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, FadeIn, FadeOut, ZoomIn } from 'react-native-reanimated';
 
 import { APP_NAME } from '@/constants/app';
-import { palette, spacing } from '@/constants/theme';
+import { palette, spacing, colors } from '@/constants/theme';
 
 import { AppText } from './ui/app-text';
 import { BrandMark } from './ui/brand-mark';
@@ -13,7 +13,7 @@ import { BrandMark } from './ui/brand-mark';
 const MIN_DURATION = 900;
 
 /**
- * Splash animada: continua a splash nativa (mesmo fundo vinho e símbolo) e some
+ * Splash animada: continua a splash nativa (mesmo fundo roxo e símbolo) e some
  * suavemente quando fontes e sessão estão prontas.
  */
 export function BrandSplash({ ready, fontsReady }: { ready: boolean; fontsReady: boolean }) {
@@ -39,17 +39,17 @@ export function BrandSplash({ ready, fontsReady }: { ready: boolean; fontsReady:
       }}
       accessibilityLabel={`${APP_NAME} carregando`}
     >
-      <LinearGradient colors={[palette.wine700, palette.wine800]} start={{ x: 0.5, y: 0.3 }} end={{ x: 1, y: 1 }} style={styles.fill}>
+      <LinearGradient colors={[palette.purple700, palette.purple800]} start={{ x: 0.5, y: 0.3 }} end={{ x: 1, y: 1 }} style={styles.fill}>
         <View style={styles.glow} />
         <Animated.View entering={ZoomIn.duration(500).easing(Easing.out(Easing.cubic))}>
           <BrandMark variant="plain" size={104} />
         </Animated.View>
         {fontsReady ? (
           <Animated.View entering={FadeIn.delay(150).duration(450)} style={styles.texts}>
-            <AppText variant="title" color={palette.cream} align="center">
+            <AppText variant="title" color={palette.paper} align="center">
               {APP_NAME}
             </AppText>
-            <AppText variant="eyebrow" color={palette.rose300} align="center">
+            <AppText variant="eyebrow" color={palette.lilac300} align="center">
               Conecte · Divulgue · Cresça
             </AppText>
           </Animated.View>
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     borderRadius: 210,
     top: -160,
     right: -160,
-    backgroundColor: 'rgba(194,112,111,0.18)',
+    backgroundColor: colors.accentGlow,
   },
   texts: {
     gap: spacing.xs,

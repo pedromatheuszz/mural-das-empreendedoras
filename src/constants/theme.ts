@@ -1,26 +1,26 @@
 import { Platform, type TextStyle, type ViewStyle } from 'react-native';
 
 /**
- * Identidade visual do Mural das Empreendedoras.
- * Paleta: rosa queimado (destaque), vinho/bordô (identidade), off-white (fundo),
- * bege claro (áreas secundárias) e grafite (textos).
+ * Identidade visual do Mural das Empreendedoras, nas cores do grupo Joinville Empreendedoras.
+ * Paleta: roxo (identidade, a cor do grupo), lilás (destaque), branco lavanda (fundo),
+ * névoa lilás (áreas secundárias) e grafite (textos).
  * Contrastes verificados para WCAG AA nas combinações de texto usadas no app.
  */
 export const palette = {
-  wine900: '#3E0F22',
-  wine800: '#561733',
-  wine700: '#6B1D3A',
-  wine600: '#7F2A48',
-  wine100: '#F3E4E9',
-  rose600: '#A3505A',
-  rose500: '#C2706F',
-  rose300: '#E2A9A3',
-  rose100: '#F6E3DF',
-  rose50: '#FBF0EE',
-  cream: '#FBF8F5',
-  beige100: '#F4ECE4',
-  beige200: '#EADFD3',
-  beige300: '#DCCBBB',
+  purple900: '#24043F',
+  purple800: '#370661',
+  purple700: '#491174',
+  purple600: '#5E2A8A',
+  purple100: '#EFE7F7',
+  lilac600: '#7A4FA0',
+  lilac500: '#9B72C4',
+  lilac300: '#C9B2E3',
+  lilac100: '#F1E9F8',
+  lilac50: '#F8F4FC',
+  paper: '#FBF9FD',
+  mist100: '#F3EFF8',
+  mist200: '#E7E0F0',
+  mist300: '#D6CBE4',
   graphite900: '#232126',
   graphite700: '#3A373D',
   graphite500: '#5E5A60',
@@ -30,28 +30,28 @@ export const palette = {
 } as const;
 
 export const colors = {
-  background: palette.cream,
+  background: palette.paper,
   surface: palette.white,
-  surfaceMuted: palette.beige100,
-  surfaceSunken: palette.beige200,
-  border: palette.beige200,
-  borderStrong: palette.beige300,
+  surfaceMuted: palette.mist100,
+  surfaceSunken: palette.mist200,
+  border: palette.mist200,
+  borderStrong: palette.mist300,
 
   text: palette.graphite900,
   textSecondary: palette.graphite500,
   textMuted: palette.graphite400,
   textInverse: palette.white,
 
-  primary: palette.wine700,
-  primaryPressed: palette.wine800,
-  primaryDeep: palette.wine900,
-  primarySoft: palette.wine100,
+  primary: palette.purple700,
+  primaryPressed: palette.purple800,
+  primaryDeep: palette.purple900,
+  primarySoft: palette.purple100,
   onPrimary: palette.white,
 
-  accent: palette.rose500,
-  accentText: palette.rose600,
-  accentSoft: palette.rose100,
-  accentSubtle: palette.rose50,
+  accent: palette.lilac500,
+  accentText: palette.lilac600,
+  accentSoft: palette.lilac100,
+  accentSubtle: palette.lilac50,
 
   success: '#2F7A57',
   successSoft: '#E6F2EC',
@@ -61,6 +61,12 @@ export const colors = {
   dangerSoft: '#FBE9E7',
   info: '#2F5E8E',
   infoSoft: '#E7EFF7',
+
+  /** Brilhos decorativos em lilás (círculos de fundo, selos). */
+  accentGlow: 'rgba(155, 114, 196, 0.18)',
+  accentGlowStrong: 'rgba(155, 114, 196, 0.35)',
+  /** Véu da barra de abas flutuante sobre o desfoque. */
+  backgroundVeil: 'rgba(251, 249, 253, 0.95)',
 
   overlay: 'rgba(35, 33, 38, 0.45)',
   scrim: 'rgba(35, 33, 38, 0.55)',
@@ -134,41 +140,41 @@ export const typography: Record<TypographyVariant, TextStyle> = {
 export const shadows: Record<'card' | 'raised' | 'floating', ViewStyle> = {
   card: Platform.select<ViewStyle>({
     ios: {
-      shadowColor: palette.wine900,
+      shadowColor: palette.purple900,
       shadowOpacity: 0.06,
       shadowRadius: 14,
       shadowOffset: { width: 0, height: 6 },
     },
     android: { elevation: 2 },
-    default: { boxShadow: '0 6px 18px rgba(62, 15, 34, 0.07)' },
+    default: { boxShadow: '0 6px 18px rgba(36, 4, 63, 0.07)' },
   }) as ViewStyle,
   raised: Platform.select<ViewStyle>({
     ios: {
-      shadowColor: palette.wine900,
+      shadowColor: palette.purple900,
       shadowOpacity: 0.12,
       shadowRadius: 20,
       shadowOffset: { width: 0, height: 10 },
     },
     android: { elevation: 6 },
-    default: { boxShadow: '0 10px 28px rgba(62, 15, 34, 0.14)' },
+    default: { boxShadow: '0 10px 28px rgba(36, 4, 63, 0.14)' },
   }) as ViewStyle,
   floating: Platform.select<ViewStyle>({
     ios: {
-      shadowColor: palette.wine900,
+      shadowColor: palette.purple900,
       shadowOpacity: 0.16,
       shadowRadius: 24,
       shadowOffset: { width: 0, height: -2 },
     },
     android: { elevation: 12 },
-    default: { boxShadow: '0 -4px 24px rgba(62, 15, 34, 0.10)' },
+    default: { boxShadow: '0 -4px 24px rgba(36, 4, 63, 0.10)' },
   }) as ViewStyle,
 };
 
 /** Gradientes de marca (usados em capas, splash e placeholders). */
 export const gradients = {
-  brand: [palette.wine700, palette.rose500] as const,
-  brandDeep: [palette.wine900, palette.wine700] as const,
-  blush: [palette.rose50, palette.beige100] as const,
+  brand: [palette.purple700, palette.lilac500] as const,
+  brandDeep: [palette.purple900, palette.purple700] as const,
+  blush: [palette.lilac50, palette.mist100] as const,
   photoScrim: ['rgba(35,33,38,0)', 'rgba(35,33,38,0.25)', 'rgba(35,33,38,0.82)'] as const,
 };
 

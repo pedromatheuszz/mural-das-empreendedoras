@@ -129,7 +129,7 @@ export function PublishCta({ status }: { status: PublicationStatus | null }) {
     <View style={[styles.cta, styles.paddedMargin]}>
       <View style={styles.ctaGlowA} />
       <View style={styles.ctaGlowB} />
-      <AppText variant="eyebrow" color={palette.rose300}>
+      <AppText variant="eyebrow" color={palette.lilac300}>
         {content.eyebrow}
       </AppText>
       <AppText variant="title" color={palette.white}>
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     borderRadius: 110,
     top: -90,
     right: -70,
-    backgroundColor: 'rgba(194,112,111,0.35)',
+    backgroundColor: colors.accentGlowStrong,
   },
   ctaGlowB: {
     position: 'absolute',

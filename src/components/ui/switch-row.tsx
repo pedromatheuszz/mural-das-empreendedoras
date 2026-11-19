@@ -34,9 +34,9 @@ export function SwitchRow({ title, description, value, onValueChange, disabled }
         value={value}
         onValueChange={onValueChange}
         disabled={disabled}
-        trackColor={{ false: palette.beige300, true: colors.accent }}
+        trackColor={{ false: palette.mist300, true: colors.accent }}
         thumbColor={palette.white}
-        ios_backgroundColor={palette.beige300}
+        ios_backgroundColor={palette.mist300}
         importantForAccessibility="no-hide-descendants"
         accessibilityElementsHidden
         {...(Platform.OS === 'web' ? ({ activeThumbColor: palette.white } as object) : null)}

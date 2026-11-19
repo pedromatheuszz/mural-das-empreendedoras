@@ -123,3 +123,16 @@ O Supabase foi substituído (os trechos acima que citam Supabase são o históri
 - **Imagens:** Cloudinary, com upload preset não assinado (`src/services/storage.service.ts`).
 
 Guia: [NEON.md](NEON.md).
+
+## Pedidos da cliente — 19/11/2026
+
+- **Vincular a conta ao perfil do grupo:** a empreendedora pede pelo app e a equipe aprova no Painel da equipe (ou
+  vincula direto pelo e-mail). Veja [CARGOS.md](CARGOS.md#vínculo-de-perfis-do-grupo).
+- **Cores do grupo:** paleta trocada de vinho/rosa para o roxo `#491174` / `#370661` e o lilás `#9B72C4` do grupo
+  Joinville Empreendedoras. Ícone, splash e favicon foram redesenhados nas mesmas cores.
+- **Botão "Início":** o contêiner invisível do botão central (Divulgar) ficava por cima da parte de cima dos botões
+  laterais e "engolia" os toques. Corrigido (`pointerEvents="box-none"`). Além disso, tocar na aba já aberta volta ao
+  topo da tela.
+- **Sessão do Neon:** quando o Neon abre uma conexão nova sem carregar a sessão do JWT, as funções da equipe respondem
+  "Sessão não identificada" e o app repete sozinho. As telas abertas direto (link) esperam a sessão salva ser restaurada
+  antes de pedir dados.

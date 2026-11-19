@@ -16,6 +16,7 @@ import { EmptyState, ErrorState, Skeleton } from '@/components/ui/states';
 import { TextField } from '@/components/ui/text-field';
 import { colors, radius, spacing } from '@/constants/theme';
 import { useModerateProfile, useStaffDeleteProfile, useStaffProfile } from '@/hooks/use-admin';
+import { useLinkProfileToAccount } from '@/hooks/use-claims';
 import { usePermissions } from '@/hooks/use-permissions';
 import type { EntrepreneurProfile } from '@/types/models';
 import { getErrorMessage } from '@/utils/errors';
@@ -183,6 +184,8 @@ function ManageProfile({ profile }: { profile: EntrepreneurProfile }) {
           </Card>
         ) : null}
 
+        {profile.user_id === null && permissions.can('manageGroupProfiles') ? <LinkAccountCard profile={profile} /> : null}
+
         {abilities.canDelete ? (
           <Button title="Excluir perfil" icon="trash-outline" variant="dangerGhost" onPress={destroy} loading={remove.isPending} disabled={busy} fullWidth />
         ) : (
@@ -194,6 +197,58 @@ function ManageProfile({ profile }: { profile: EntrepreneurProfile }) {
         )}
       </View>
     </Screen>
+  );
+}
+
+/** Vincula um perfil do grupo (sem conta) à conta de uma empreendedora, pelo e-mail. */
+function LinkAccountCard({ profile }: { profile: EntrepreneurProfile }) {
+  const dialog = useDialog();
+  const toast = useToast();
+  const link = useLinkProfileToAccount();
+  const [email, setEmail] = useState('');
+
+  const submit = async () => {
+    const value = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      toast.error('Informe o e-mail que a empreendedora usou para criar a conta no app.');
+      return;
+    }
+    const confirmed = await dialog.confirm({
+      title: 'Vincular este perfil?',
+      message: `“${profile.business_name}” passa a pertencer à conta ${value}. Só ela poderá editar o conteúdo, e isso não pode ser desfeito pelo app.`,
+      confirmLabel: 'Vincular',
+      icon: 'link-outline',
+    });
+    if (!confirmed) return;
+    try {
+      await link.mutateAsync({ profileId: profile.id, email: value });
+      setEmail('');
+      toast.success('Perfil vinculado. A empreendedora já pode editá-lo em Meu Perfil.');
+      router.replace('/admin/painel');
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    }
+  };
+
+  return (
+    <Card style={styles.block}>
+      <AppText variant="heading">Vincular a uma conta</AppText>
+      <AppText variant="small" color={colors.textSecondary}>
+        Para quando você já sabe quem é a dona: digite o e-mail que ela usou para criar a conta no app. Ela também pode
+        pedir o vínculo pelo próprio perfil.
+      </AppText>
+      <TextField
+        label="E-mail da conta"
+        placeholder="nome@exemplo.com"
+        leftIcon="mail-outline"
+        keyboardType="email-address"
+        autoCapitalize="none"
+        autoCorrect={false}
+        value={email}
+        onChangeText={setEmail}
+      />
+      <Button title="Vincular perfil" icon="link" variant="secondary" onPress={submit} loading={link.isPending} fullWidth />
+    </Card>
   );
 }
 

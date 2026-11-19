@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     borderRadius: 140,
     top: -120,
     left: -80,
-    backgroundColor: palette.rose100,
+    backgroundColor: palette.lilac100,
   },
   heroBlobB: {
     position: 'absolute',
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     bottom: -60,
     right: -50,
-    backgroundColor: 'rgba(194,112,111,0.18)',
+    backgroundColor: colors.accentGlow,
   },
   heroLogo: {
     borderRadius: 999,

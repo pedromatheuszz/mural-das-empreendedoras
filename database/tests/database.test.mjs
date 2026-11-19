@@ -537,3 +537,122 @@ test('dados do grupo Joinville Empreendedoras: 87 perfis publicados, sem duplica
     'busca sem acento encontra "empadão"',
   );
 });
+
+test('vínculo de perfil do grupo: a empreendedora pede, a equipe confirma e só ela passa a editar', async () => {
+  const CLARA = '66666666-6666-4666-8666-666666666666';
+  const EVA = '77777777-7777-4777-8777-777777777777';
+  await db.query(
+    `insert into neon_auth."user" (id, name, email) values ($1, 'Clara', 'clara@example.com'), ($2, 'Eva', 'eva@example.com')`,
+    [CLARA, EVA],
+  );
+  await as(CLARA, (tx) => tx.query(`select public.ensure_my_account()`));
+  await as(EVA, (tx) => tx.query(`select public.ensure_my_account()`));
+
+  const groupProfile = async (name) =>
+    (await db.query(`select id from public.entrepreneur_profiles where business_name = $1 and user_id is null`, [name])).rows[0].id;
+  const camila = await groupProfile('Camila Sweets');
+  const alyas = await groupProfile('Alyas Doces');
+  const amare = await groupProfile('Amare Criativa');
+
+  // Sem a sessão do JWT identificada (falha intermitente do Neon), a resposta é "tente de novo",
+  // não "sem permissão" — e nada é alterado.
+  await assert.rejects(as(null, (tx) => tx.query(`select * from public.list_pending_claims()`)), /Sessão não identificada/);
+  await assert.rejects(
+    as(null, (tx) => tx.query(`select public.moderate_profile($1, 'suspended', 'x')`, [camila])),
+    /Sessão não identificada/,
+  );
+
+  // Pedido: só por função, só sem perfil próprio e um por vez.
+  await assert.rejects(asAnon((tx) => tx.query(`select public.request_profile_claim($1)`, [camila])), /permission denied/);
+  await assert.rejects(
+    as(BIA, (tx) => tx.query(`select public.request_profile_claim($1)`, [camila])),
+    /já tem um perfil no Mural/,
+  );
+  await assert.rejects(
+    as(CLARA, (tx) =>
+      tx.query(`insert into public.profile_claims (profile_id, user_id) values ($1, $2)`, [camila, CLARA]),
+    ),
+    /permission denied/,
+  );
+  await as(CLARA, (tx) => tx.query(`select public.request_profile_claim($1, 'Sou a Camila, dona da marca.')`, [camila]));
+  await assert.rejects(
+    as(CLARA, (tx) => tx.query(`select public.request_profile_claim($1)`, [alyas])),
+    /pedido de vínculo em análise/,
+  );
+  const mine = await as(CLARA, (tx) => tx.query(`select business_name, status from public.my_profile_claim()`));
+  assert.deepEqual(mine.rows, [{ business_name: 'Camila Sweets', status: 'pending' }]);
+
+  // Ninguém consegue tomar o perfil direto, nem a equipe.
+  const steal = await as(CLARA, (tx) =>
+    tx.query(`update public.entrepreneur_profiles set user_id = $1 where id = $2`, [CLARA, camila]),
+  );
+  assert.equal(steal.affectedRows, 0);
+  await assert.rejects(
+    as(MOD, (tx) => tx.query(`update public.entrepreneur_profiles set user_id = $1 where id = $2`, [CLARA, camila])),
+    /transferir o perfil/,
+  );
+
+  // Só a equipe vê e analisa os pedidos.
+  await assert.rejects(as(BIA, (tx) => tx.query(`select * from public.list_pending_claims()`)), /Apenas a equipe/);
+  const pending = await as(MOD, (tx) => tx.query(`select id, account_email, message from public.list_pending_claims()`));
+  const claim = pending.rows.find((row) => row.account_email === 'clara@example.com');
+  assert.equal(claim.message, 'Sou a Camila, dona da marca.');
+  await assert.rejects(
+    as(BIA, (tx) => tx.query(`select public.review_profile_claim($1, true)`, [claim.id])),
+    /Apenas a equipe/,
+  );
+
+  // Aprovado: o perfil passa a ser da Clara, que edita; a administradora não edita mais o conteúdo.
+  await as(MOD, (tx) => tx.query(`select public.review_profile_claim($1, true)`, [claim.id]));
+  const owner = await db.query(`select user_id from public.entrepreneur_profiles where id = $1`, [camila]);
+  assert.equal(owner.rows[0].user_id, CLARA);
+  const own = await as(CLARA, (tx) =>
+    tx.query(`update public.entrepreneur_profiles set entrepreneur_name = 'Camila Souza' where id = $1 returning entrepreneur_name`, [
+      camila,
+    ]),
+  );
+  assert.equal(own.rows[0].entrepreneur_name, 'Camila Souza');
+  await assert.rejects(
+    as(MOD, (tx) => tx.query(`update public.entrepreneur_profiles set business_name = 'Outro' where id = $1`, [camila])),
+    /Somente a dona do perfil/,
+  );
+  const approved = await as(CLARA, (tx) => tx.query(`select status from public.my_profile_claim()`));
+  assert.equal(approved.rows[0].status, 'approved');
+  await assert.rejects(
+    as(MOD, (tx) => tx.query(`select public.review_profile_claim($1, true)`, [claim.id])),
+    /já foi analisado/,
+  );
+  await assert.rejects(
+    as(EVA, (tx) => tx.query(`select public.request_profile_claim($1)`, [camila])),
+    /já está vinculado/,
+  );
+
+  // Recusado (com motivo), novo pedido e cancelamento.
+  await as(EVA, (tx) => tx.query(`select public.request_profile_claim($1)`, [alyas]));
+  const evaClaim = (await as(EVA, (tx) => tx.query(`select id from public.my_profile_claim()`))).rows[0].id;
+  await as(MOD, (tx) => tx.query(`select public.review_profile_claim($1, false, 'Não conseguimos confirmar.')`, [evaClaim]));
+  const rejected = await as(EVA, (tx) => tx.query(`select status, review_note from public.my_profile_claim()`));
+  assert.deepEqual(rejected.rows, [{ status: 'rejected', review_note: 'Não conseguimos confirmar.' }]);
+  await as(EVA, (tx) => tx.query(`select public.request_profile_claim($1)`, [alyas]));
+  const second = (await as(EVA, (tx) => tx.query(`select id from public.my_profile_claim()`))).rows[0].id;
+  await as(EVA, (tx) => tx.query(`select public.cancel_profile_claim($1)`, [second]));
+  const cancelled = await as(EVA, (tx) => tx.query(`select status from public.my_profile_claim()`));
+  assert.equal(cancelled.rows[0].status, 'cancelled');
+
+  // Vínculo direto pela equipe, pelo e-mail da conta.
+  await assert.rejects(
+    as(BIA, (tx) => tx.query(`select public.link_profile_to_account($1, 'eva@example.com')`, [amare])),
+    /Apenas a equipe/,
+  );
+  await assert.rejects(
+    as(MOD, (tx) => tx.query(`select public.link_profile_to_account($1, 'ninguem@example.com')`, [amare])),
+    /Nenhuma conta com o e-mail/,
+  );
+  await as(MOD, (tx) => tx.query(`select public.link_profile_to_account($1, ' EVA@example.com ')`, [amare]));
+  const linked = await db.query(`select user_id from public.entrepreneur_profiles where id = $1`, [amare]);
+  assert.equal(linked.rows[0].user_id, EVA);
+  await assert.rejects(
+    as(MOD, (tx) => tx.query(`select public.link_profile_to_account($1, 'clara@example.com')`, [amare])),
+    /já está vinculado/,
+  );
+});

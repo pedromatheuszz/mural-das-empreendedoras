@@ -13,11 +13,13 @@ import { useTabBarSpace } from '@/components/navigation/tab-bar';
 import { APP_NAME, APP_VERSION, LEGAL_ENTITY } from '@/constants/app';
 import { colors, spacing } from '@/constants/theme';
 import { useMyProfile } from '@/hooks/use-profiles';
+import { useScreenScrollToTop } from '@/hooks/use-screen-scroll-to-top';
 import { signOut } from '@/services/auth.service';
 import { getErrorMessage } from '@/utils/errors';
 
 /** Configurações: segurança, privacidade e gerenciamento da conta. */
 export default function SettingsScreen() {
+  const scrollRef = useScreenScrollToTop();
   const tabBarSpace = useTabBarSpace();
   const dialog = useDialog();
   const toast = useToast();
@@ -41,7 +43,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <Screen scroll contentStyle={{ paddingBottom: tabBarSpace }}>
+    <Screen scroll scrollRef={scrollRef} contentStyle={{ paddingBottom: tabBarSpace }}>
       <View style={styles.header}>
         <AppText variant="eyebrow" color={colors.accentText}>
           Ajustes

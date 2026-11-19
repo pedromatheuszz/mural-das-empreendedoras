@@ -11,12 +11,12 @@ type Size = 'lg' | 'md' | 'sm';
 
 const VARIANTS: Record<Variant, { background: string; pressed: string; text: string; border: string }> = {
   primary: { background: colors.primary, pressed: colors.primaryPressed, text: colors.onPrimary, border: colors.primary },
-  soft: { background: colors.accentSoft, pressed: palette.rose300, text: colors.primary, border: colors.accentSoft },
+  soft: { background: colors.accentSoft, pressed: palette.lilac300, text: colors.primary, border: colors.accentSoft },
   secondary: { background: colors.surface, pressed: colors.surfaceMuted, text: colors.primary, border: colors.borderStrong },
   ghost: { background: 'transparent', pressed: colors.primarySoft, text: colors.primary, border: 'transparent' },
   danger: { background: colors.danger, pressed: '#8E1D17', text: palette.white, border: colors.danger },
   dangerGhost: { background: 'transparent', pressed: colors.dangerSoft, text: colors.danger, border: 'transparent' },
-  inverse: { background: palette.white, pressed: palette.rose50, text: colors.primary, border: palette.white },
+  inverse: { background: palette.white, pressed: palette.lilac50, text: colors.primary, border: palette.white },
 };
 
 const SIZES: Record<Size, { height: number; paddingHorizontal: number; icon: number; fontSize: number }> = {

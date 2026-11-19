@@ -1,11 +1,11 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import { useState, type ReactElement } from 'react';
+import { useRef, useState, type ReactElement } from 'react';
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HubHeader, PublishCta, RecentCarousel, SearchPill } from '@/components/hub/hub-sections';
-import { useTabBarSpace } from '@/components/navigation/tab-bar';
+import { useTabBarSpace, useTabScrollToTop } from '@/components/navigation/tab-bar';
 import { CategoryFilter } from '@/components/profiles/category-filter';
 import { useOpenLink } from '@/components/profiles/contact-actions';
 import { ProfileCard, ProfileCardSkeleton } from '@/components/profiles/profile-card';
@@ -19,11 +19,15 @@ import { getCategory } from '@/constants/categories';
 import { colors, MAX_CONTENT_WIDTH, spacing } from '@/constants/theme';
 import { useAccount } from '@/hooks/use-account';
 import { useHubProfiles, useMyProfile, useRecentProfiles } from '@/hooks/use-profiles';
+import type { ProfileSummary } from '@/types/models';
 
 export default function HubScreen() {
   const insets = useSafeAreaInsets();
   const [category, setCategory] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  // Tocar em "Início" com a aba já aberta volta ao começo do Mural.
+  const listRef = useRef<FlatList<ProfileSummary>>(null);
+  useTabScrollToTop(listRef);
 
   const hub = useHubProfiles(category);
   const recent = useRecentProfiles(category === null);
@@ -96,6 +100,7 @@ export default function HubScreen() {
     <View style={[styles.root, { paddingTop: insets.top }]}>
       <OfflineBanner />
       <FlatList
+        ref={listRef}
         data={items}
         keyExtractor={(item) => item.id}
         renderItem={({ item, index }) => (

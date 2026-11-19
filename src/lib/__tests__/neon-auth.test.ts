@@ -79,3 +79,43 @@ describe('sessão no celular', () => {
     expect(await neonAuth.getAccessToken()).toBeNull();
   });
 });
+
+describe('abertura direta de uma tela (link ou recarregar a página)', () => {
+  it('as requisições esperam a sessão salva ser restaurada e saem com o token', async () => {
+    type AuthModule = typeof import('../neon-auth');
+    type StorageModule = typeof import('../secure-storage');
+    let isolated!: AuthModule;
+    let storage!: StorageModule;
+    // Módulos novos (estado zerado), como num app recém-aberto: só dá com require().
+    jest.isolateModules(() => {
+      /* eslint-disable @typescript-eslint/no-require-imports */
+      storage = require('../secure-storage');
+      isolated = require('../neon-auth');
+      /* eslint-enable @typescript-eslint/no-require-imports */
+    });
+    await storage.secureStorage.setItem('mural.auth.cookies', JSON.stringify({ [COOKIE]: 'abc.assinatura' }));
+
+    const exp = Math.floor(Date.now() / 1000) + 900;
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    fetchMock.mockImplementationOnce(async () => {
+      await gate;
+      return reply(
+        200,
+        { session: { expiresAt: '2099-01-01T00:00:00Z' }, user: { id: 'u1', email: 'ana@exemplo.com', name: 'Ana' } },
+        { 'set-auth-jwt': jwtFor(exp) },
+      );
+    });
+
+    const restoring = isolated.neonAuth.restoreSession();
+    const token = isolated.neonAuth.getAccessToken();
+    release();
+
+    expect(await token).toBe(jwtFor(exp));
+    await restoring;
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock.mock.calls[0][0]).toBe('https://auth.exemplo.test/neondb/auth/get-session');
+  });
+});

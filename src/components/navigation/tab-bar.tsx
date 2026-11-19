@@ -44,7 +44,37 @@ type BlurRegistry = {
   targets: Map<string, TargetRef>;
   version: number;
   register: (routeKey: string, ref: TargetRef) => () => void;
+  /** Ação "voltar ao topo" de cada aba, chamada ao tocar na aba que já está aberta. */
+  scrollToTop: Map<string, () => void>;
 };
+
+/** Chave da aba em que a tela está (fornecida por ScreenBlurTarget). */
+const TabRouteKeyContext = createContext<string | null>(null);
+
+type ScrollableNode = {
+  scrollToOffset?: (params: { offset: number; animated?: boolean }) => void;
+  scrollTo?: (params: { x?: number; y?: number; animated?: boolean }) => void;
+};
+
+/**
+ * Tocar de novo na aba que já está aberta leva a lista/tela de volta ao começo
+ * (comportamento padrão de apps). Use com o ref da FlatList ou do <Screen scroll>.
+ */
+export function useTabScrollToTop(ref: RefObject<unknown>) {
+  const routeKey = useContext(TabRouteKeyContext);
+  const handlers = useContext(BlurTargetContext)?.scrollToTop;
+  useEffect(() => {
+    if (!routeKey || !handlers) return;
+    handlers.set(routeKey, () => {
+      const node = ref.current as ScrollableNode | null;
+      if (node?.scrollToOffset) node.scrollToOffset({ offset: 0, animated: true });
+      else node?.scrollTo?.({ x: 0, y: 0, animated: true });
+    });
+    return () => {
+      handlers.delete(routeKey);
+    };
+  }, [routeKey, handlers, ref]);
+}
 
 /**
  * No Android, o desfoque precisa de uma referência ao conteúdo que fica atrás da barra
@@ -54,6 +84,7 @@ const BlurTargetContext = createContext<BlurRegistry | null>(null);
 
 export function BlurTargetsProvider({ children }: { children: ReactNode }) {
   const [targets] = useState(() => new Map<string, TargetRef>());
+  const [scrollToTop] = useState(() => new Map<string, () => void>());
   const [version, setVersion] = useState(0);
   const register = useCallback(
     (routeKey: string, ref: TargetRef) => {
@@ -66,7 +97,9 @@ export function BlurTargetsProvider({ children }: { children: ReactNode }) {
     },
     [targets],
   );
-  return <BlurTargetContext.Provider value={{ targets, version, register }}>{children}</BlurTargetContext.Provider>;
+  return (
+    <BlurTargetContext.Provider value={{ targets, version, register, scrollToTop }}>{children}</BlurTargetContext.Provider>
+  );
 }
 
 /** Envolve o conteúdo de uma aba para que a barra flutuante possa desfocá-lo. */
@@ -75,9 +108,11 @@ export function ScreenBlurTarget({ routeKey, children }: { routeKey: string; chi
   const register = useContext(BlurTargetContext)?.register;
   useEffect(() => register?.(routeKey, ref), [register, routeKey]);
   return (
-    <BlurTargetView ref={ref} style={styles.target}>
-      {children}
-    </BlurTargetView>
+    <TabRouteKeyContext.Provider value={routeKey}>
+      <BlurTargetView ref={ref} style={styles.target}>
+        {children}
+      </BlurTargetView>
+    </TabRouteKeyContext.Provider>
   );
 }
 
@@ -114,7 +149,10 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
     const onPress = () => {
       Haptics.selectionAsync().catch(() => undefined);
       const event = emitter.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-      if (!focused && !event.defaultPrevented) navigateToTab(route.key);
+      if (event.defaultPrevented) return;
+      if (!focused) navigateToTab(route.key);
+      // Aba já aberta: volta ao começo (ex.: "Início" leva ao topo do Mural).
+      else registry?.scrollToTop.get(route.key)?.();
     };
 
     if (route.name === 'publish') {
@@ -129,7 +167,7 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
           style={({ pressed }) => [styles.centerSlot, pressed ? styles.pressed : null]}
         >
           <LinearGradient
-            colors={focused ? [palette.wine800, palette.wine600] : gradients.brand}
+            colors={focused ? [palette.purple800, palette.purple600] : gradients.brand}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.centerButton}
@@ -202,7 +240,13 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
           <View style={styles.centerSpacer} />
           <View style={styles.half}>{rightRoutes.map(renderTab)}</View>
         </View>
-        {center ? <View style={styles.centerHost}>{renderTab(center)}</View> : null}
+        {/* box-none: a faixa invisível ao redor do botão central não pode "engolir" os toques
+            em Início, Buscar, Ajustes e Meu Perfil (só o próprio botão recebe o toque). */}
+        {center ? (
+          <View pointerEvents="box-none" style={styles.centerHost}>
+            {renderTab(center)}
+          </View>
+        ) : null}
       </View>
     </View>
   );
@@ -237,7 +281,7 @@ const styles = StyleSheet.create({
   },
   veil: {
     // Véu claro sobre o desfoque: garante leitura dos ícones sobre qualquer conteúdo.
-    backgroundColor: 'rgba(251,248,245,0.95)',
+    backgroundColor: colors.backgroundVeil,
   },
   half: {
     flex: 1,
@@ -288,7 +332,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   pillActive: {
-    backgroundColor: 'rgba(194,112,111,0.18)',
+    backgroundColor: colors.accentGlow,
   },
   labelActive: {
     fontFamily: fonts.bold,

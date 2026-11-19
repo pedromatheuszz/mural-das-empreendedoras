@@ -29,7 +29,7 @@ const ToastContext = createContext<ToastApi | null>(null);
 const TONES: Record<ToastType, { icon: keyof typeof Ionicons.glyphMap; color: string }> = {
   success: { icon: 'checkmark-circle', color: '#8FD8B1' },
   error: { icon: 'alert-circle', color: '#FFA79E' },
-  info: { icon: 'information-circle', color: palette.rose300 },
+  info: { icon: 'information-circle', color: palette.lilac300 },
 };
 
 export function ToastProvider({ children }: { children: ReactNode }) {

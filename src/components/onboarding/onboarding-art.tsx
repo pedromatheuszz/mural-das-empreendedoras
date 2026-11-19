@@ -146,16 +146,16 @@ const styles = StyleSheet.create({
     width: 280,
     height: 280,
     borderRadius: 140,
-    backgroundColor: palette.rose50,
+    backgroundColor: palette.lilac50,
     borderWidth: 1,
-    borderColor: palette.rose100,
+    borderColor: palette.lilac100,
   },
   backCard: {
     position: 'absolute',
     width: CARD_W,
     height: CARD_H,
     borderRadius: radius.xxl,
-    backgroundColor: palette.beige200,
+    backgroundColor: palette.mist200,
   },
   frontCard: {
     width: CARD_W,
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     height: 2,
     left: 150,
     top: 149,
-    backgroundColor: palette.rose300,
+    backgroundColor: palette.lilac300,
     opacity: 0.6,
   },
   node: {

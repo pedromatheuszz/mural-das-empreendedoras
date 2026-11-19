@@ -12,7 +12,7 @@ type AvatarProps = {
   uri?: string | null;
   name: string;
   size?: number;
-  /** Anel em rosa queimado ao redor da foto (destaque, como nos stories). */
+  /** Anel em lilás ao redor da foto (destaque, como nos stories). */
   ring?: boolean;
   style?: StyleProp<ViewStyle>;
 };

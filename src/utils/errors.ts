@@ -91,12 +91,20 @@ function isPostgrestError(err: ErrorLike): boolean {
   return typeof err.code === 'string' && 'details' in err;
 }
 
+/**
+ * Falha intermitente do Neon: a requisição chegou ao banco sem a sessão do JWT carregada.
+ * O banco recusa antes de alterar qualquer coisa, então repetir é seguro (inclusive em ações).
+ */
+export function isSessionNotIdentified(error: unknown): boolean {
+  return /sessão não identificada|não autenticada/i.test(text(asErrorLike(error)?.message));
+}
+
 /** Erros que valem nova tentativa automática (falhas de rede e indisponibilidade). */
 export function isRetryableError(error: unknown): boolean {
   if (isNetworkError(error)) return true;
   const err = asErrorLike(error);
   // Raramente, o Neon executa uma requisição sem identificar a sessão do JWT; repetir resolve.
-  if (/sessão não identificada|não autenticada/i.test(text(err?.message))) return true;
+  if (isSessionNotIdentified(error)) return true;
   const status = Number(err?.status ?? err?.statusCode ?? 0);
   return status >= 500 || status === 408;
 }

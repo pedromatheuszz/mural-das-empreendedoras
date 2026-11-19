@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     borderRadius: 120,
     top: -150,
     right: -120,
-    backgroundColor: palette.rose100,
+    backgroundColor: palette.lilac100,
     opacity: 0.8,
   },
   blobSmall: {
@@ -52,6 +52,6 @@ const styles = StyleSheet.create({
     borderRadius: 45,
     top: 30,
     right: 20,
-    backgroundColor: palette.beige100,
+    backgroundColor: palette.mist100,
   },
 });

@@ -5,7 +5,7 @@ import { colors, radius } from '@/constants/theme';
 
 type BrandMarkProps = {
   size?: number;
-  /** "tile": símbolo em um quadrado vinho; "plain": só o símbolo (para fundos vinho). */
+  /** "tile": símbolo em um quadrado roxo; "plain": só o símbolo (para fundos roxos). */
   variant?: 'tile' | 'plain';
   style?: StyleProp<ViewStyle>;
 };

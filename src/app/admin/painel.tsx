@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import { RestrictedScreen, RolePill } from '@/components/admin/role-pill';
+import { PendingClaimsSection } from '@/components/claims/pending-claims';
 import { useToast } from '@/components/feedback/toast-provider';
 import { StatusBadge } from '@/components/profiles/badges';
 import { AppText } from '@/components/ui/app-text';
@@ -61,6 +62,8 @@ export default function AdminPanelScreen() {
             />
           </ListGroup>
         ) : null}
+
+        {permissions.can('manageGroupProfiles') ? <PendingClaimsSection /> : null}
 
         <View style={styles.reports}>
           <AppText variant="heading" accessibilityRole="header">

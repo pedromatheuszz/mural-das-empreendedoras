@@ -18,7 +18,9 @@ O app tem três cargos:
 | Suspender e reativar **qualquer** perfil | ✓ | ✓ | – |
 | Ver e resolver denúncias | ✓ | ✓ | – |
 | Ver o histórico de alterações dos perfis | ✓ | ✓ | – |
+| Pedir o vínculo de um perfil do grupo à **própria** conta | ✓ | ✓ | ✓ |
 | Editar e excluir os **perfis do grupo** (cadastrados pela organização, sem conta) | ✓ | ✓ | – |
+| Aprovar ou recusar pedidos de vínculo e vincular um perfil do grupo a uma conta | ✓ | ✓ | – |
 | Editar o conteúdo do perfil de **outra empreendedora** | ✓ | – | – |
 | Excluir o perfil de **outra empreendedora** | ✓ | – | – |
 | Atribuir e remover cargos | ✓ | – | – |
@@ -28,6 +30,26 @@ Regras extras:
 - **Próprio cargo:** ninguém altera o próprio cargo. Isso evita que o último desenvolvedor se rebaixe por engano.
 - **Suspensão:** quando a equipe suspende um perfil, a dona vê o motivo e não consegue reativá-lo sozinha.
 - **Histórico:** toda ação da equipe fica registrada em `profile_audit_log`.
+
+## Vínculo de perfis do grupo
+
+Os perfis cadastrados pela organização (sem conta no app) podem passar para a empreendedora dona do negócio:
+
+1. **A empreendedora pede.** Ela cria a conta no app, encontra o próprio negócio (Meu Perfil → "Encontrar meu
+   negócio", ou pela busca) e toca em **"Este negócio é meu"**. Pode deixar uma mensagem para a administração.
+2. **A equipe confirma.** A administradora ou o desenvolvedor vê o pedido em **Painel da equipe → Pedidos de vínculo**
+   (com nome, e-mail e mensagem) e toca em **Aprovar** ou **Recusar**.
+3. **Pronto.** Aprovado, o perfil aparece no Meu Perfil dela e só ela edita o conteúdo. A administradora continua podendo
+   suspender ou reativar, mas não edita mais o conteúdo.
+
+Regras garantidas pelo banco (`database/migrations/20261119001200_profile_claims.sql`):
+
+- **Contas com perfil:** só pede quem ainda não tem perfil. Se a empreendedora já criou um perfil, ela precisa excluí-lo
+  antes, porque cada conta tem um perfil.
+- **Um pedido por vez:** cada conta tem no máximo um pedido em análise.
+- **Sem atalho:** ninguém, nem a equipe, consegue trocar a dona de um perfil diretamente. Só pelas funções de vínculo.
+- **Vínculo direto:** a equipe também pode vincular sem pedido. Em **Gerenciar perfil → Vincular a uma conta**, digita o
+  e-mail que a empreendedora usou no app (ela precisa ter entrado no app pelo menos uma vez).
 
 ## Onde fica no app
 

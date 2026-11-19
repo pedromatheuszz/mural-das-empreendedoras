@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { RefreshControl, StyleSheet, View } from 'react-native';
 
+import { ClaimEntryCard } from '@/components/claims/claim-cards';
 import { useTabBarSpace } from '@/components/navigation/tab-bar';
 import { OnboardingArt } from '@/components/onboarding/onboarding-art';
 import { ProfileCard } from '@/components/profiles/profile-card';
@@ -14,6 +15,7 @@ import { Screen } from '@/components/ui/screen';
 import { ErrorState, Skeleton } from '@/components/ui/states';
 import { colors, radius, spacing } from '@/constants/theme';
 import { useMyProfile } from '@/hooks/use-profiles';
+import { useScreenScrollToTop } from '@/hooks/use-screen-scroll-to-top';
 import type { EntrepreneurProfile } from '@/types/models';
 
 /**
@@ -23,6 +25,7 @@ import type { EntrepreneurProfile } from '@/types/models';
 export default function PublishScreen() {
   const { data: profile, isPending, isError, error, refetch, isRefetching } = useMyProfile();
   const tabBarSpace = useTabBarSpace();
+  const scrollRef = useScreenScrollToTop();
 
   if (isPending) {
     return (
@@ -47,6 +50,7 @@ export default function PublishScreen() {
   return (
     <Screen
       scroll
+      scrollRef={scrollRef}
       contentStyle={{ paddingBottom: tabBarSpace }}
       refreshControl={
         <RefreshControl refreshing={isRefetching} onRefresh={() => void refetch()} tintColor={colors.primary} colors={[colors.primary]} />
@@ -106,6 +110,7 @@ function CreateIntro() {
         onPress={() => router.push('/profile/create')}
         fullWidth
       />
+      <ClaimEntryCard />
     </View>
   );
 }
