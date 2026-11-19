@@ -2,8 +2,9 @@
 -- Integrantes do grupo Joinville Empreendedoras (instagram.com/joinvilleempreendedoras)
 -- Lista enviada pela organização em 18/11/2026: 89 itens → 85 perfis
 -- (6 duplicados unidos e 2 linhas com dois negócios separadas).
+-- Em 19/11/2026: + Daay Perfumaria e Personalizados da Je (87 perfis).
 --
--- Como usar: Supabase → SQL Editor → cole este arquivo → Run (DEPOIS das migrations).
+-- Como usar: npm run db:migrate -- --seed (DEPOIS das migrations).
 -- Pode ser executado de novo sem duplicar (compara pelo nome da marca).
 --
 -- ⚠️ LGPD: os perfis entram PUBLICADOS e o consentimento é registrado em nome da
@@ -176,7 +177,7 @@ with source (business_name, entrepreneur_name, service_description, category, in
     -- 74
     ('Studio Tabata Goulart', 'Tabata Goulart', 'Integrante do grupo Joinville Empreendedoras. Conheça os produtos e serviços no Instagram.', null, 'studio.tabatagoulart'),
     -- 75
-    ('La Dorothea Natural', 'Integrante do grupo', 'Produtos naturais para saúde e autocuidado da pele.', 'saude', 'ladorothea.natural'),
+    ('La Dorothea Natural', 'Natália Tino', 'Produtos naturais para saúde e autocuidado da pele. Perfil pessoal da empreendedora: @nataliatino.', 'saude', 'ladorothea.natural'),
     -- 76 (sem Instagram na lista)
     ('Juliana Hasegawa Crochê', 'Juliana Hasegawa', 'Peças artesanais em crochê.', 'artesanato', null),
     -- 77
@@ -192,7 +193,10 @@ with source (business_name, entrepreneur_name, service_description, category, in
     -- 85
     ('Fabiana Mohr', 'Fabiana Mohr', 'Integrante do grupo Joinville Empreendedoras. Conheça os produtos e serviços no Instagram.', null, 'fabiana.mohr'),
     -- 89
-    ('Nanda Rocha Depiladora', 'Nanda Rocha', 'Epiladora e designer de sobrancelhas, com atendimentos unissex.', 'beleza', 'nandarochadepiladora')
+    ('Nanda Rocha Depiladora', 'Nanda Rocha', 'Epiladora e designer de sobrancelhas, com atendimentos unissex.', 'beleza', 'nandarochadepiladora'),
+    -- Adicionadas em 19/11/2026
+    ('Daay Perfumaria', 'Integrante do grupo', 'Perfumes árabes e importados.', 'beleza', 'daay_perfumariaa'),
+    ('Personalizados da Je', 'Integrante do grupo', 'Produtos personalizados. Conheça os produtos no Instagram.', 'artesanato', 'personalizados.da.je')
 )
 insert into public.entrepreneur_profiles (
   user_id,

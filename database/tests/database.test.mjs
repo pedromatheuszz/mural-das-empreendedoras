@@ -506,7 +506,7 @@ test('perfis da organização: só a moderação cria; usuárias comuns não edi
   assert.equal(removed.affectedRows, 1);
 });
 
-test('dados do grupo Joinville Empreendedoras: 85 perfis publicados, sem duplicar', async () => {
+test('dados do grupo Joinville Empreendedoras: 87 perfis publicados, sem duplicar', async () => {
   const seed = readFileSync(join(here, '..', 'seed', 'joinville-empreendedoras.sql'), 'utf8');
   await db.exec(seed);
   await db.exec(seed); // executar de novo não pode duplicar
@@ -515,18 +515,18 @@ test('dados do grupo Joinville Empreendedoras: 85 perfis publicados, sem duplica
     `select business_name, publication_status, instagram_url, city, state, public_consent_at
        from public.entrepreneur_profiles where user_id is null`,
   );
-  assert.equal(rows.length, 85);
+  assert.equal(rows.length, 87);
   assert.ok(rows.every((row) => row.publication_status === 'published' && row.public_consent_at));
   assert.ok(rows.every((row) => row.city === 'Joinville' && row.state === 'SC'));
-  assert.equal(new Set(rows.map((row) => row.business_name)).size, 85, 'nomes únicos');
+  assert.equal(new Set(rows.map((row) => row.business_name)).size, 87, 'nomes únicos');
 
   const links = rows.map((row) => row.instagram_url).filter(Boolean);
-  assert.equal(links.length, 82, '3 perfis ficam sem Instagram até a organização confirmar o @');
+  assert.equal(links.length, 84, '3 perfis ficam sem Instagram até a organização confirmar o @');
   assert.equal(new Set(links).size, links.length, 'nenhum Instagram repetido');
   assert.ok(links.every((url) => /^https:\/\/www\.instagram\.com\/[a-z0-9._]{1,30}$/.test(url)), 'links válidos');
 
   const visible = await asAnon((tx) => tx.query(`select count(*)::int as total from public.entrepreneur_profiles`));
-  assert.equal(visible.rows[0].total, 86, '85 do grupo + 1 perfil publicado da Bia');
+  assert.equal(visible.rows[0].total, 88, '87 do grupo + 1 perfil publicado da Bia');
 
   const search = await asAnon((tx) =>
     tx.query(`select business_name from public.search_entrepreneur_profiles('empadao', null, 20, 0)`),
