@@ -2,7 +2,7 @@
   "expo": {
     "name": "Mural das Empreendedoras",
     "slug": "hub-empreendedoras",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "hubempreendedoras",
@@ -19,7 +19,8 @@
       "infoPlist": {
         "CFBundleDevelopmentRegion": "pt-BR",
         "CFBundleAllowMixedLocalizations": true
-      }
+      },
+      "buildNumber": "2"
     },
     "android": {
       "package": "br.com.hubempreendedoras.app",
@@ -36,7 +37,8 @@
         "android.permission.READ_MEDIA_VIDEO",
         "android.permission.READ_MEDIA_AUDIO"
       ],
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "versionCode": 2
     },
     "web": {
       "output": "single",
