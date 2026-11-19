@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { RestrictedScreen, RolePill } from '@/components/admin/role-pill';
 import { useDialog } from '@/components/feedback/dialog-provider';
@@ -20,6 +20,7 @@ import { usePermissions } from '@/hooks/use-permissions';
 import { useAuth } from '@/providers/auth-provider';
 import type { Member } from '@/services/admin.service';
 import { getErrorMessage } from '@/utils/errors';
+import { PressableScale } from '@/components/ui/pressable-scale';
 
 const ROLE_OPTIONS = (Object.keys(ROLE_INFO) as RoleName[]).map((value) => ({
   value,
@@ -96,13 +97,15 @@ export default function RolesScreen() {
             {members.data.map((member, index) => {
               const isMe = member.id === user?.id;
               return (
-                <Pressable
+                <PressableScale
                   key={member.id}
                   onPress={() => (isMe ? toast.info('Você não pode alterar o próprio cargo.') : setEditing(member))}
                   accessibilityRole="button"
                   accessibilityLabel={`${member.full_name}, ${ROLE_INFO[member.role].label}`}
                   accessibilityHint={isMe ? undefined : 'Abre a lista de cargos'}
-                  style={({ pressed }) => [styles.row, index > 0 ? styles.divider : null, pressed ? styles.pressed : null]}
+                  scaleTo={1}
+      style={[styles.row, index > 0 ? styles.divider : null]}
+                  pressedStyle={styles.pressed}
                 >
                   <Avatar name={member.full_name} size={40} />
                   <View style={styles.flex}>
@@ -115,7 +118,7 @@ export default function RolesScreen() {
                     </AppText>
                   </View>
                   <RolePill role={member.role} />
-                </Pressable>
+                </PressableScale>
               );
             })}
           </Card>

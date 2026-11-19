@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
 import { useController, useWatch, type Control } from 'react-hook-form';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { LIMITS } from '@/constants/app';
 import { CATEGORIES } from '@/constants/categories';
@@ -16,6 +16,7 @@ import { FormTextField } from '../ui/form-fields';
 import { SelectSheet } from '../ui/select-sheet';
 import { SwitchRow } from '../ui/switch-row';
 import { ImagePickerField } from './image-picker-field';
+import { PressableScale } from '../ui/pressable-scale';
 
 type FormControl = Control<ProfileFormValues, unknown, ProfileFormOutput>;
 
@@ -91,19 +92,21 @@ function StateField({ control }: { control: FormControl }) {
           (opcional)
         </AppText>
       </AppText>
-      <Pressable
+      <PressableScale
         onPress={() => setOpen(true)}
         accessibilityRole="button"
         accessibilityLabel={`Estado: ${selected ? selected.name : 'não selecionado'}`}
         accessibilityHint="Abre a lista de estados"
-        style={({ pressed }) => [styles.select, pressed ? styles.selectPressed : null]}
+        scaleTo={1}
+        style={styles.select}
+        pressedStyle={styles.selectPressed}
       >
         <Ionicons name="map-outline" size={20} color={colors.textMuted} />
         <AppText variant="body" color={selected ? colors.text : colors.textMuted} style={styles.flex}>
           {selected ? `${selected.name} (${selected.uf})` : 'Selecione o estado'}
         </AppText>
         <Ionicons name="chevron-down" size={18} color={colors.textSecondary} />
-      </Pressable>
+      </PressableScale>
       <SelectSheet
         visible={open}
         title="Estado"

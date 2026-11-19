@@ -6,6 +6,7 @@ import { colors, radius, spacing } from '@/constants/theme';
 
 import { AppText } from './app-text';
 import { IconButton } from './icon-button';
+import { PressableScale } from './pressable-scale';
 
 type Option<T extends string> = { value: T; label: string; description?: string };
 
@@ -88,12 +89,14 @@ function OptionRow({
   onPress: () => void;
 }) {
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress}
       accessibilityRole="radio"
       accessibilityState={{ selected }}
       accessibilityLabel={label}
-      style={({ pressed }) => [styles.option, pressed ? styles.optionPressed : null]}
+      scaleTo={1}
+      style={styles.option}
+      pressedStyle={styles.optionPressed}
     >
       <View style={styles.optionTexts}>
         <AppText variant={selected ? 'bodyStrong' : 'body'} color={selected ? colors.primary : colors.text}>
@@ -106,7 +109,7 @@ function OptionRow({
         ) : null}
       </View>
       {selected ? <Ionicons name="checkmark-circle" size={22} color={colors.primary} /> : null}
-    </Pressable>
+    </PressableScale>
   );
 }
 

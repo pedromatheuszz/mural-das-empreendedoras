@@ -1,11 +1,13 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { CATEGORIES } from '@/constants/categories';
 import { colors, radius, spacing } from '@/constants/theme';
 
 import { AppText } from '../ui/app-text';
 import { Chip } from '../ui/chip';
+import { PRESS_SCALE } from '@/constants/motion';
+import { PressableScale } from '../ui/pressable-scale';
 
 type CategoryFilterProps = {
   selected: string | null;
@@ -40,12 +42,14 @@ export function CategoryGrid({ onSelect }: { onSelect: (slug: string) => void })
   return (
     <View style={styles.grid}>
       {CATEGORIES.map((category) => (
-        <Pressable
+        <PressableScale
           key={category.slug}
           onPress={() => onSelect(category.slug)}
           accessibilityRole="button"
           accessibilityLabel={`Explorar ${category.label}`}
-          style={({ pressed }) => [styles.tile, pressed ? styles.tilePressed : null]}
+          scaleTo={PRESS_SCALE.button}
+          style={styles.tile}
+          pressedStyle={styles.tilePressed}
         >
           <View style={[styles.tileIcon, { backgroundColor: category.tone.background }]}>
             <Ionicons name={category.icon} size={22} color={category.tone.foreground} />
@@ -53,7 +57,7 @@ export function CategoryGrid({ onSelect }: { onSelect: (slug: string) => void })
           <AppText variant="smallStrong" numberOfLines={2} style={styles.tileLabel}>
             {category.label}
           </AppText>
-        </Pressable>
+        </PressableScale>
       ))}
     </View>
   );

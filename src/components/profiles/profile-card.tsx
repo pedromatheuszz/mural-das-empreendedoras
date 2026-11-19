@@ -1,7 +1,9 @@
-import { Pressable, StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useMemo } from 'react';
+import { StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { getCategory } from '@/constants/categories';
+import { LIST_ENTER_LIMIT, listEnter } from '@/constants/motion';
 import { colors, radius, shadows, spacing } from '@/constants/theme';
 import type { ProfileSummary } from '@/types/models';
 import { formatLocation } from '@/utils/format';
@@ -10,6 +12,7 @@ import { describeLink } from '@/utils/url';
 import { AppText } from '../ui/app-text';
 import { Button } from '../ui/button';
 import { Pill } from '../ui/chip';
+import { PressableScale } from '../ui/pressable-scale';
 import { IconButton } from '../ui/icon-button';
 import { Skeleton } from '../ui/states';
 import { CategoryPill } from './badges';
@@ -39,14 +42,20 @@ export function ProfileCard({ profile, onPress, index = 0 }: ProfileCardProps) {
     .filter(Boolean)
     .join('. ');
 
+  // Só os primeiros cards do carregamento entram animados; os demais (rolando a lista)
+  // já aparecem prontos — animar linhas de lista virtualizada causa "piscadas" ao rolar.
+  const entering = useMemo(() => (index < LIST_ENTER_LIMIT ? listEnter(index) : undefined), [index]);
+
   return (
-    <Animated.View entering={FadeInDown.delay(Math.min(index, 6) * 45).duration(320)} style={styles.card}>
-      <Pressable
+    <Animated.View entering={entering} style={styles.card}>
+      <PressableScale
         onPress={onPress}
         accessibilityRole="button"
         accessibilityLabel={summary}
         accessibilityHint="Abre o perfil completo"
-        style={({ pressed }) => [styles.body, pressed ? styles.pressed : null]}
+        scaleTo={1}
+        style={styles.body}
+        pressedStyle={styles.pressed}
       >
         <View style={styles.header}>
           <ProfileImage uri={profile.logo_url ?? profile.profile_image_url} name={profile.business_name} size={64} />
@@ -67,7 +76,7 @@ export function ProfileCard({ profile, onPress, index = 0 }: ProfileCardProps) {
           {location ? <Pill icon="location-outline" label={location} /> : null}
           {profile.serves_nationwide ? <Pill icon="globe-outline" label="Todo o Brasil" /> : null}
         </View>
-      </Pressable>
+      </PressableScale>
       <View style={styles.footer}>
         <Button
           title="Ver perfil"

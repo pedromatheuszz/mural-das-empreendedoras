@@ -1,9 +1,11 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { createContext, useContext, useRef, useState, type ReactNode } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { AppText } from '@/components/ui/app-text';
 import { Button } from '@/components/ui/button';
+import { DIALOG_ENTER } from '@/constants/motion';
 import { colors, radius, shadows, spacing } from '@/constants/theme';
 
 type ConfirmOptions = {
@@ -56,7 +58,7 @@ export function DialogProvider({ children }: { children: ReactNode }) {
         <View style={styles.backdrop}>
           <Pressable style={StyleSheet.absoluteFill} onPress={() => close(false)} accessibilityLabel="Fechar" />
           {dialog ? (
-            <View style={styles.card} accessibilityViewIsModal accessibilityRole="alert">
+            <Animated.View entering={DIALOG_ENTER} style={styles.card} accessibilityViewIsModal accessibilityRole="alert">
               <View style={[styles.iconWrap, destructive && styles.iconWrapDanger]}>
                 <Ionicons
                   name={dialog.icon ?? (destructive ? 'warning-outline' : 'help-circle-outline')}
@@ -81,7 +83,7 @@ export function DialogProvider({ children }: { children: ReactNode }) {
                 />
                 <Button title={dialog.cancelLabel ?? 'Cancelar'} variant="ghost" onPress={() => close(false)} fullWidth />
               </View>
-            </View>
+            </Animated.View>
           ) : null}
         </View>
       </Modal>

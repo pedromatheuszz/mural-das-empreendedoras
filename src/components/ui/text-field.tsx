@@ -1,7 +1,9 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState, type ComponentRef, type Ref } from 'react';
 import { Platform, Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
+import Animated from 'react-native-reanimated';
 
+import { colorTransition } from '@/constants/motion';
 import { colors, fonts, radius, spacing } from '@/constants/theme';
 
 import { AppText } from './app-text';
@@ -66,8 +68,9 @@ export function TextField({
           {helper}
         </AppText>
       ) : null}
-      <View
+      <Animated.View
         style={[
+          colorTransition,
           styles.inputWrap,
           { borderColor },
           focused ? styles.inputFocused : null,
@@ -114,7 +117,7 @@ export function TextField({
             <Ionicons name={hidden ? 'eye-outline' : 'eye-off-outline'} size={20} color={colors.textSecondary} />
           </Pressable>
         ) : null}
-      </View>
+      </Animated.View>
       {error ? (
         <View style={styles.errorRow} accessibilityLiveRegion="polite">
           <Ionicons name="alert-circle" size={14} color={colors.danger} />

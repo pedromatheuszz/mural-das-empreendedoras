@@ -1,8 +1,9 @@
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { getCategory } from '@/constants/categories';
+import { PRESS_SCALE } from '@/constants/motion';
 import { fonts, gradients, palette, radius, shadows, spacing } from '@/constants/theme';
 import type { ProfileSummary } from '@/types/models';
 import { useImageFallback } from '@/hooks/use-image-fallback';
@@ -10,6 +11,7 @@ import { getInitials } from '@/utils/format';
 
 import { AppText } from '../ui/app-text';
 import { Pill } from '../ui/chip';
+import { PressableScale } from '../ui/pressable-scale';
 import { Skeleton } from '../ui/states';
 import { ProfileImage } from './profile-image';
 
@@ -24,12 +26,13 @@ export function FeaturedProfileCard({ profile, onPress }: { profile: ProfileSumm
   const category = getCategory(profile.category);
 
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`${profile.business_name}, por ${profile.entrepreneur_name}${category ? `. ${category.label}` : ''}`}
       accessibilityHint="Abre o perfil completo"
-      style={({ pressed }) => [styles.card, pressed ? styles.pressed : null]}
+      scaleTo={PRESS_SCALE.card}
+      style={styles.card}
     >
       {cover ? (
         <Image
@@ -75,7 +78,7 @@ export function FeaturedProfileCard({ profile, onPress }: { profile: ProfileSumm
           por {profile.entrepreneur_name}
         </AppText>
       </View>
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -91,10 +94,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: palette.purple700,
     ...shadows.raised,
-  },
-  pressed: {
-    opacity: 0.92,
-    transform: [{ scale: 0.985 }],
   },
   fallback: {
     flex: 1,

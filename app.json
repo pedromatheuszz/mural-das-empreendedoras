@@ -18,7 +18,8 @@
       },
       "infoPlist": {
         "CFBundleDevelopmentRegion": "pt-BR",
-        "CFBundleAllowMixedLocalizations": true
+        "CFBundleAllowMixedLocalizations": true,
+        "CADisableMinimumFrameDurationOnPhone": true
       },
       "buildNumber": "2"
     },

@@ -1,10 +1,11 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { colors, radius, spacing } from '@/constants/theme';
 
 import { AppText } from './app-text';
+import { PressableScale } from './pressable-scale';
 
 type ListRowProps = {
   icon: keyof typeof Ionicons.glyphMap;
@@ -20,13 +21,15 @@ type ListRowProps = {
 export function ListRow({ icon, title, subtitle, onPress, right, destructive, accessibilityHint }: ListRowProps) {
   const tint = destructive ? colors.danger : colors.primary;
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress}
       disabled={!onPress}
       accessibilityRole={onPress ? 'button' : undefined}
       accessibilityLabel={subtitle ? `${title}. ${subtitle}` : title}
       accessibilityHint={accessibilityHint}
-      style={({ pressed }) => [styles.row, pressed ? styles.pressed : null]}
+      scaleTo={1}
+      style={styles.row}
+      pressedStyle={styles.pressed}
     >
       <View style={[styles.iconWrap, destructive ? styles.iconDanger : null]}>
         <Ionicons name={icon} size={20} color={tint} />
@@ -42,7 +45,7 @@ export function ListRow({ icon, title, subtitle, onPress, right, destructive, ac
         ) : null}
       </View>
       {right ?? (onPress ? <Ionicons name="chevron-forward" size={18} color={colors.textMuted} /> : null)}
-    </Pressable>
+    </PressableScale>
   );
 }
 

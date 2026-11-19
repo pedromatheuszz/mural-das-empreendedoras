@@ -1,6 +1,12 @@
 /// <reference types="jest" />
 /* eslint-disable @typescript-eslint/no-require-imports */
 // Mocks de módulos nativos usados nos testes (executados em Node, sem aparelho).
+// Gestos (react-native-gesture-handler) em Node: mocks oficiais da biblioteca.
+require('react-native-gesture-handler/jestSetup');
+// No Node não existe o runtime de UI dos worklets: a instalação das ligações nativas dos gestos é desligada.
+jest.mock('./node_modules/react-native-gesture-handler/lib/module/handlers/gestures/installUIRuntimeBindings.js', () => ({
+  installUIRuntimeBindings: jest.fn(),
+}));
 jest.mock('@react-native-community/netinfo', () => require('@react-native-community/netinfo/jest/netinfo-mock.js'));
 
 jest.mock('expo-haptics', () => ({

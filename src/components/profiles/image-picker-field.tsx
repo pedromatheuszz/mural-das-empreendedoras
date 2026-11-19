@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { useToast } from '@/components/feedback/toast-provider';
 import { colors, radius, spacing } from '@/constants/theme';
@@ -10,6 +10,8 @@ import { optimizeImage, type ImageKind } from '@/services/storage.service';
 import { AppText } from '../ui/app-text';
 import { Button } from '../ui/button';
 import { ProfileImage } from './profile-image';
+import { PRESS_SCALE } from '@/constants/motion';
+import { PressableScale } from '../ui/pressable-scale';
 
 type ImagePickerFieldProps = {
   kind: ImageKind;
@@ -50,12 +52,13 @@ export function ImagePickerField({ kind, label, helper, value, onChange, name }:
 
   return (
     <View style={styles.container}>
-      <Pressable
+      <PressableScale
         onPress={pick}
         disabled={processing}
         accessibilityRole="button"
         accessibilityLabel={value ? `Trocar ${label.toLowerCase()}` : `Adicionar ${label.toLowerCase()}`}
-        style={({ pressed }) => [pressed ? styles.pressed : null]}
+        scaleTo={PRESS_SCALE.card}
+      pressedStyle={styles.pressed}
       >
         {value ? (
           <ProfileImage uri={value} name={name} size={PREVIEW_SIZE} shape={kind === 'photo' ? 'circle' : 'rounded'} />
@@ -74,7 +77,7 @@ export function ImagePickerField({ kind, label, helper, value, onChange, name }:
             <ActivityIndicator color={colors.primary} />
           </View>
         ) : null}
-      </Pressable>
+      </PressableScale>
       <View style={styles.texts}>
         <AppText variant="bodyStrong">
           {label}{' '}

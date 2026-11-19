@@ -1,10 +1,11 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { colors, radius, spacing } from '@/constants/theme';
 
 import { AppText } from './app-text';
+import { PressableScale } from './pressable-scale';
 
 type CheckboxProps = {
   checked: boolean;
@@ -18,14 +19,16 @@ type CheckboxProps = {
 export function Checkbox({ checked, onChange, label, accessibilityLabel, error, disabled }: CheckboxProps) {
   return (
     <View style={styles.container}>
-      <Pressable
+      <PressableScale
         onPress={() => onChange(!checked)}
         disabled={disabled}
         accessibilityRole="checkbox"
         accessibilityState={{ checked, disabled: !!disabled }}
         accessibilityLabel={accessibilityLabel}
         hitSlop={6}
-        style={({ pressed }) => [styles.row, pressed ? styles.pressed : null]}
+        scaleTo={1}
+      style={styles.row}
+        pressedStyle={styles.pressed}
       >
         <View style={[styles.box, checked ? styles.boxChecked : null, error ? styles.boxError : null]}>
           {checked ? <Ionicons name="checkmark" size={16} color={colors.onPrimary} /> : null}
@@ -39,7 +42,7 @@ export function Checkbox({ checked, onChange, label, accessibilityLabel, error, 
             label
           )}
         </View>
-      </Pressable>
+      </PressableScale>
       {error ? (
         <AppText variant="caption" color={colors.danger} style={styles.error} accessibilityLiveRegion="polite">
           {error}

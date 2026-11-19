@@ -5,6 +5,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } fr
 
 import { colors, radius, spacing } from '@/constants/theme';
 import { getErrorMessage, isNetworkError } from '@/utils/errors';
+import { EASE_IN_OUT, FADE_IN } from '@/constants/motion';
 
 import { AppText } from './app-text';
 import { Button } from './button';
@@ -22,7 +23,7 @@ type EmptyStateProps = {
 /** Estado vazio com orientação (o que fazer a seguir). */
 export function EmptyState({ icon, title, message, actionLabel, onAction, tone = 'brand', compact }: EmptyStateProps) {
   return (
-    <View style={[styles.empty, compact ? styles.emptyCompact : null]} accessibilityRole="summary">
+    <Animated.View entering={FADE_IN} style={[styles.empty, compact ? styles.emptyCompact : null]} accessibilityRole="summary">
       <View style={[styles.iconCircle, tone === 'danger' ? styles.iconDanger : null]}>
         <Ionicons name={icon} size={30} color={tone === 'danger' ? colors.danger : colors.primary} />
       </View>
@@ -37,7 +38,7 @@ export function EmptyState({ icon, title, message, actionLabel, onAction, tone =
       {actionLabel && onAction ? (
         <Button title={actionLabel} onPress={onAction} variant="secondary" size="md" style={styles.action} />
       ) : null}
-    </View>
+    </Animated.View>
   );
 }
 
@@ -71,7 +72,7 @@ export function Skeleton({
 }) {
   const opacity = useSharedValue(0.55);
   useEffect(() => {
-    opacity.set(withRepeat(withTiming(1, { duration: 750 }), -1, true));
+    opacity.set(withRepeat(withTiming(1, { duration: 900, easing: EASE_IN_OUT }), -1, true));
   }, [opacity]);
   const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.get() }));
   return (

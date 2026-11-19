@@ -1,9 +1,10 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { colors, radius, spacing } from '@/constants/theme';
 
 import { AppText } from './app-text';
+import { PressableScale } from './pressable-scale';
 
 type IconName = keyof typeof Ionicons.glyphMap;
 
@@ -21,20 +22,15 @@ type ChipProps = {
 export function Chip({ label, selected = false, onPress, icon, size = 'md', accessibilityHint, style }: ChipProps) {
   const foreground = selected ? colors.onPrimary : colors.text;
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress}
       accessibilityRole="button"
       accessibilityState={{ selected }}
       accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
       hitSlop={4}
-      style={({ pressed }) => [
-        styles.chip,
-        size === 'sm' ? styles.chipSm : null,
-        selected ? styles.selected : styles.unselected,
-        pressed && !selected ? styles.pressed : null,
-        style,
-      ]}
+      style={[styles.chip, size === 'sm' ? styles.chipSm : null, selected ? styles.selected : styles.unselected, style]}
+      pressedStyle={selected ? null : styles.pressed}
     >
       {icon ? (
         <Ionicons name={icon} size={size === 'sm' ? 14 : 16} color={selected ? colors.onPrimary : colors.primary} />
@@ -43,7 +39,7 @@ export function Chip({ label, selected = false, onPress, icon, size = 'md', acce
         {label}
       </AppText>
       {selected && !icon ? <Ionicons name="checkmark" size={15} color={colors.onPrimary} /> : null}
-    </Pressable>
+    </PressableScale>
   );
 }
 

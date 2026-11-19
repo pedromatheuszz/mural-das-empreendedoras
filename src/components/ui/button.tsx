@@ -1,10 +1,10 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { ActivityIndicator, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { ActivityIndicator, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { colors, palette, radius, spacing, typography } from '@/constants/theme';
 
 import { AppText } from './app-text';
+import { PressableScale } from './pressable-scale';
 
 type Variant = 'primary' | 'soft' | 'secondary' | 'ghost' | 'danger' | 'dangerGhost' | 'inverse';
 type Size = 'lg' | 'md' | 'sm';
@@ -25,7 +25,6 @@ const SIZES: Record<Size, { height: number; paddingHorizontal: number; icon: num
   sm: { height: 36, paddingHorizontal: spacing.md, icon: 16, fontSize: 13 },
 };
 
-const SPRING = { damping: 18, stiffness: 320, mass: 0.6 };
 
 export type ButtonProps = {
   title: string;
@@ -58,8 +57,6 @@ export function Button({
   accessibilityHint,
   testID,
 }: ButtonProps) {
-  const scale = useSharedValue(1);
-  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));
   const tone = VARIANTS[variant];
   const dimensions = SIZES[size];
   const inactive = disabled || loading;
@@ -67,27 +64,27 @@ export function Button({
   const iconElement = icon ? <Ionicons name={icon} size={dimensions.icon} color={tone.text} /> : null;
 
   return (
-    <Animated.View style={[fullWidth ? styles.fullWidth : styles.auto, animatedStyle, style]}>
-      <Pressable
+    <PressableScale
         onPress={onPress}
-        onPressIn={() => scale.set(withSpring(0.97, SPRING))}
-        onPressOut={() => scale.set(withSpring(1, SPRING))}
         disabled={inactive}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel ?? title}
         accessibilityHint={accessibilityHint}
         accessibilityState={{ disabled: inactive, busy: loading }}
         testID={testID}
-        style={({ pressed }) => [
+        style={[
+          fullWidth ? styles.fullWidth : styles.auto,
           styles.base,
           {
             minHeight: dimensions.height,
             paddingHorizontal: dimensions.paddingHorizontal,
-            backgroundColor: pressed ? tone.pressed : tone.background,
+            backgroundColor: tone.background,
             borderColor: tone.border,
           },
           disabled && !loading ? styles.disabled : null,
+          style,
         ]}
+        pressedStyle={{ backgroundColor: tone.pressed }}
       >
         {loading ? (
           <ActivityIndicator color={tone.text} />
@@ -105,8 +102,7 @@ export function Button({
             {iconPosition === 'right' ? iconElement : null}
           </View>
         )}
-      </Pressable>
-    </Animated.View>
+    </PressableScale>
   );
 }
 

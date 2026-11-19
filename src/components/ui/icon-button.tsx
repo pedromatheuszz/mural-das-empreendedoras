@@ -1,9 +1,13 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Pressable, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 
+import { PRESS_SCALE } from '@/constants/motion';
 import { colors, palette, shadows } from '@/constants/theme';
 
+import { PressableScale } from './pressable-scale';
+
 type Variant = 'surface' | 'ghost' | 'glass' | 'primary' | 'soft';
+
 
 const VARIANTS: Record<Variant, { background: string; pressed: string; icon: string; border: string }> = {
   surface: { background: colors.surface, pressed: colors.surfaceMuted, icon: colors.text, border: colors.border },
@@ -40,31 +44,33 @@ export function IconButton({
 }: IconButtonProps) {
   const tone = VARIANTS[variant];
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress}
       disabled={disabled}
       hitSlop={6}
+      scaleTo={PRESS_SCALE.icon}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: !!disabled }}
       testID={testID}
-      style={({ pressed }) => [
+      style={[
         styles.base,
         {
           width: size,
           height: size,
           borderRadius: size / 2,
-          backgroundColor: pressed ? tone.pressed : tone.background,
+          backgroundColor: tone.background,
           borderColor: tone.border,
         },
         variant === 'glass' ? shadows.card : null,
         disabled ? styles.disabled : null,
         style,
       ]}
+      pressedStyle={{ backgroundColor: tone.pressed }}
     >
       <Ionicons name={icon} size={iconSize} color={tone.icon} />
-    </Pressable>
+    </PressableScale>
   );
 }
 

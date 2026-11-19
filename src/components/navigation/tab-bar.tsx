@@ -14,11 +14,13 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, fonts, gradients, MAX_CONTENT_WIDTH, palette, shadows, spacing } from '@/constants/theme';
 import { useMyProfile } from '@/hooks/use-profiles';
+import { PressableScale } from '@/components/ui/pressable-scale';
+import { PRESS_SCALE } from '@/constants/motion';
 
 import { AppText } from '../ui/app-text';
 import { Avatar } from '../ui/avatar';
@@ -157,14 +159,15 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
 
     if (route.name === 'publish') {
       return (
-        <Pressable
+        <PressableScale
           key={route.key}
           onPress={onPress}
           accessibilityRole="tab"
           accessibilityState={{ selected: focused }}
           accessibilityLabel={meta.label}
           accessibilityHint={meta.hint}
-          style={({ pressed }) => [styles.centerSlot, pressed ? styles.pressed : null]}
+          scaleTo={PRESS_SCALE.icon}
+          style={styles.centerSlot}
         >
           <LinearGradient
             colors={focused ? [palette.purple800, palette.purple600] : gradients.brand}
@@ -183,7 +186,7 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
           >
             {meta.label}
           </AppText>
-        </Pressable>
+        </PressableScale>
       );
     }
 
@@ -195,7 +198,7 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
       );
 
     return (
-      <Pressable
+      <PressableScale
         key={route.key}
         onPress={onPress}
         onLongPress={() => emitter.emit({ type: 'tabLongPress', target: route.key })}
@@ -203,7 +206,8 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
         accessibilityState={{ selected: focused }}
         accessibilityLabel={meta.label}
         accessibilityHint={meta.hint}
-        style={({ pressed }) => [styles.item, focused ? styles.itemActive : null, pressed ? styles.pressed : null]}
+        scaleTo={0.94}
+        style={[styles.item, focused ? styles.itemActive : null]}
       >
         <View style={styles.pill}>{icon}</View>
         <AppText
@@ -215,7 +219,7 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
         >
           {meta.label}
         </AppText>
-      </Pressable>
+      </PressableScale>
     );
   };
 
@@ -326,9 +330,6 @@ const styles = StyleSheet.create({
   /** Aba selecionada: cápsula arredondada como a própria barra (ícone + nome). */
   itemActive: {
     backgroundColor: colors.accentGlow,
-  },
-  pressed: {
-    opacity: 0.7,
   },
   pill: {
     width: 52,

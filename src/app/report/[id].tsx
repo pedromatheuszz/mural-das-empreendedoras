@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useController, useForm, useFormState, useWatch } from 'react-hook-form';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { useToast } from '@/components/feedback/toast-provider';
 import { AppText } from '@/components/ui/app-text';
@@ -15,6 +15,8 @@ import { colors, radius, spacing } from '@/constants/theme';
 import { useReportProfile } from '@/hooks/use-profiles';
 import { REPORT_REASONS, reportSchema, type ReportValues } from '@/schemas/report.schema';
 import { getErrorMessage } from '@/utils/errors';
+import { PRESS_SCALE } from '@/constants/motion';
+import { PressableScale } from '@/components/ui/pressable-scale';
 
 /** Denúncia de perfil (moderação do Mural). */
 export default function ReportProfileScreen() {
@@ -57,7 +59,7 @@ export default function ReportProfileScreen() {
         {REPORT_REASONS.map((option) => {
           const selected = reasonField.value === option.value;
           return (
-            <Pressable
+            <PressableScale
               key={option.value}
               onPress={() => {
                 reasonField.onChange(option.value);
@@ -66,7 +68,9 @@ export default function ReportProfileScreen() {
               accessibilityRole="radio"
               accessibilityState={{ selected }}
               accessibilityLabel={`${option.label}. ${option.description}`}
-              style={({ pressed }) => [styles.option, selected ? styles.optionSelected : null, pressed ? styles.pressed : null]}
+              scaleTo={PRESS_SCALE.card}
+      style={[styles.option, selected ? styles.optionSelected : null]}
+              pressedStyle={styles.pressed}
             >
               <Ionicons
                 name={selected ? 'radio-button-on' : 'radio-button-off'}
@@ -79,7 +83,7 @@ export default function ReportProfileScreen() {
                   {option.description}
                 </AppText>
               </View>
-            </Pressable>
+            </PressableScale>
           );
         })}
         {reasonState.error ? (

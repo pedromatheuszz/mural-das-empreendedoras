@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { ProfileClaimPrompt } from '@/components/claims/claim-cards';
 import { CommunityBanner } from '@/components/profiles/community-banner';
@@ -14,6 +14,7 @@ import { colors, radius, spacing } from '@/constants/theme';
 import { usePermissions } from '@/hooks/use-permissions';
 import { usePublicProfile } from '@/hooks/use-profiles';
 import { useAuth } from '@/providers/auth-provider';
+import { PressableScale } from '@/components/ui/pressable-scale';
 
 /** Perfil público completo de uma empreendedora. */
 export default function EntrepreneurProfileScreen() {
@@ -109,18 +110,20 @@ export default function EntrepreneurProfileScreen() {
         isOwner ? null : (
           <View style={styles.footer}>
             <ProfileClaimPrompt profile={profile} />
-            <Pressable
+            <PressableScale
               onPress={() => router.push({ pathname: '/report/[id]', params: { id: profile.id, name: profile.business_name } })}
               accessibilityRole="button"
               accessibilityLabel="Denunciar este perfil"
               hitSlop={8}
-              style={({ pressed }) => [styles.report, pressed ? styles.pressed : null]}
+              scaleTo={1}
+              style={styles.report}
+              pressedStyle={styles.pressed}
             >
               <Ionicons name="flag-outline" size={16} color={colors.textSecondary} />
               <AppText variant="smallStrong" color={colors.textSecondary}>
                 Denunciar perfil
               </AppText>
-            </Pressable>
+            </PressableScale>
           </View>
         )
       }

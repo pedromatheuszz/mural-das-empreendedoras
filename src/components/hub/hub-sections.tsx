@@ -11,6 +11,8 @@ import { AppText } from '../ui/app-text';
 import { Avatar } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { SectionHeader } from '../ui/layout';
+import { PRESS_SCALE } from '@/constants/motion';
+import { PressableScale } from '@/components/ui/pressable-scale';
 
 function greeting(date = new Date()): string {
   const hour = date.getHours();
@@ -45,11 +47,13 @@ export function HubHeader({ fullName, photoUri }: { fullName?: string; photoUri?
 
 export function SearchPill() {
   return (
-    <Pressable
+    <PressableScale
       onPress={() => router.navigate({ pathname: '/search', params: { focus: String(Date.now()) } })}
       accessibilityRole="search"
       accessibilityLabel="Buscar marcas, nomes ou serviços"
-      style={({ pressed }) => [styles.searchPill, pressed ? styles.searchPillPressed : null]}
+      scaleTo={PRESS_SCALE.card}
+      style={styles.searchPill}
+      pressedStyle={styles.searchPillPressed}
     >
       <Ionicons name="search" size={20} color={colors.primary} />
       <AppText variant="body" color={colors.textMuted} style={styles.flex} numberOfLines={1}>
@@ -58,7 +62,7 @@ export function SearchPill() {
       <View style={styles.searchAction}>
         <Ionicons name="options-outline" size={18} color={colors.onPrimary} />
       </View>
-    </Pressable>
+    </PressableScale>
   );
 }
 

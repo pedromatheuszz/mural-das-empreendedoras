@@ -9,6 +9,9 @@ import { useFonts } from 'expo-font';
 import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+import { Platform, StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useReducedMotion } from 'react-native-reanimated';
 
 import { BrandSplash } from '@/components/brand-splash';
 import { ConfigErrorScreen } from '@/components/config-error-screen';
@@ -51,23 +54,25 @@ export default function RootLayout() {
   const fontsReady = fontsLoaded || Boolean(fontError);
 
   return (
-    <ThemeProvider value={navigationTheme}>
-      <QueryClientProvider client={queryClient}>
-        <ToastProvider>
-          <DialogProvider>
-            <AuthProvider>
-              <OnboardingProvider>
-                <StatusBar style="dark" />
-                {/* No Android, textos medidos antes das fontes carregarem ficam cortados:
+    <GestureHandlerRootView style={styles.root}>
+      <ThemeProvider value={navigationTheme}>
+        <QueryClientProvider client={queryClient}>
+          <ToastProvider>
+            <DialogProvider>
+              <AuthProvider>
+                <OnboardingProvider>
+                  <StatusBar style="dark" />
+                  {/* No Android, textos medidos antes das fontes carregarem ficam cortados:
                     só renderiza as telas com as fontes prontas (a splash nativa cobre a espera). */}
-                {fontsReady ? envProblem ? <ConfigErrorScreen problem={envProblem} /> : <RootNavigator /> : null}
-                {fontsReady ? <SplashGate fontsReady={fontsReady} /> : null}
-              </OnboardingProvider>
-            </AuthProvider>
-          </DialogProvider>
-        </ToastProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+                  {fontsReady ? envProblem ? <ConfigErrorScreen problem={envProblem} /> : <RootNavigator /> : null}
+                  {fontsReady ? <SplashGate fontsReady={fontsReady} /> : null}
+                </OnboardingProvider>
+              </AuthProvider>
+            </DialogProvider>
+          </ToastProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
 
@@ -90,13 +95,16 @@ function RootNavigator() {
   // assim um link direto para uma tela protegida não se perde no caminho.
   const showGuest = !isSignedIn || isLoading;
   const showApp = isSignedIn || isLoading;
+  // Transições nativas do sistema (iOS: a do próprio iPhone, com o gesto de voltar);
+  // com "reduzir movimento" ligado, as telas só esmaecem.
+  const reduceMotion = useReducedMotion();
 
   return (
     <Stack
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: colors.background },
-        animation: 'slide_from_right',
+        animation: reduceMotion ? 'fade' : Platform.OS === 'ios' ? 'default' : 'slide_from_right',
       }}
     >
       <Stack.Screen name="index" options={{ animation: 'none' }} />
@@ -129,3 +137,9 @@ function RootNavigator() {
     </Stack>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});
