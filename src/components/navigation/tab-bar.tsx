@@ -203,9 +203,9 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
         accessibilityState={{ selected: focused }}
         accessibilityLabel={meta.label}
         accessibilityHint={meta.hint}
-        style={({ pressed }) => [styles.item, pressed ? styles.pressed : null]}
+        style={({ pressed }) => [styles.item, focused ? styles.itemActive : null, pressed ? styles.pressed : null]}
       >
-        <View style={[styles.pill, focused ? styles.pillActive : null]}>{icon}</View>
+        <View style={styles.pill}>{icon}</View>
         <AppText
           variant="caption"
           color={tint}
@@ -320,19 +320,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 2,
     paddingVertical: 6,
+    paddingHorizontal: 4,
+    borderRadius: 30,
+  },
+  /** Aba selecionada: cápsula arredondada como a própria barra (ícone + nome). */
+  itemActive: {
+    backgroundColor: colors.accentGlow,
   },
   pressed: {
     opacity: 0.7,
   },
   pill: {
     width: 52,
-    height: 30,
-    borderRadius: 15,
+    height: 28,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  pillActive: {
-    backgroundColor: colors.accentGlow,
   },
   labelActive: {
     fontFamily: fonts.bold,
