@@ -83,5 +83,6 @@ npx eas-cli@latest submit --platform ios
 
 ## 6. Depois do lançamento
 
+- Para avisar (e obrigar) as usuárias a atualizar o APK, publique a versão pela API: veja [ATUALIZACOES.md](ATUALIZACOES.md).
 - Acompanhe as denúncias diariamente (consultas em [NEON.md](NEON.md#6-moderação-até-existir-o-painel-web)).
 - Para correções só de JavaScript, considere o **EAS Update** (atualizações sem nova revisão das lojas).

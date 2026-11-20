@@ -104,6 +104,7 @@ docs/                  Guias de configuração, testes, arquitetura e publicaç�
 | [docs/CARGOS.md](docs/CARGOS.md) | Cargos (Desenvolvedor, Administradora, Empreendedora) e o que cada um pode fazer |
 | [docs/NEON.md](docs/NEON.md) | Variáveis, migrations, Neon Auth, Cloudinary, login de desenvolvedor, moderação |
 | [docs/TESTES.md](docs/TESTES.md) | Rodar no Android, iOS e web; testes automatizados; roteiro de testes manuais |
+| [docs/ATUALIZACOES.md](docs/ATUALIZACOES.md) | Atualização do app pela API: `npm run release` e aviso obrigatório/opcional nos aparelhos |
 | [docs/PUBLICACAO.md](docs/PUBLICACAO.md) | EAS Build/Submit, Google Play, App Store, privacidade e checklist de lançamento |
 | [docs/ARQUITETURA.md](docs/ARQUITETURA.md) | Arquitetura, modelo de dados, segurança (RLS), moderação e evolução |
 | [docs/FASES.md](docs/FASES.md) | Relatório por fase: arquivos, como testar e configurações externas |

@@ -656,3 +656,44 @@ test('vínculo de perfil do grupo: a empreendedora pede, a equipe confirma e só
     /já está vinculado/,
   );
 });
+
+test('versões do app: só o desenvolvedor publica; qualquer um (até sem login) consulta a última', async () => {
+  const url = 'https://github.com/exemplo/mural/releases/download/v1.0.2/mural-1.0.2.apk';
+  await assert.rejects(
+    asAnon((tx) => tx.query(`select public.publish_app_release('android', '1.0.2', $1)`, [url])),
+    /permission denied/,
+  );
+  await assert.rejects(
+    as(MOD, (tx) => tx.query(`select public.publish_app_release('android', '1.0.2', $1)`, [url])),
+    /Apenas o desenvolvedor/,
+  );
+  await assert.rejects(
+    as(DEV, (tx) => tx.query(`insert into public.app_releases (platform, version, min_supported_version, download_url) values ('android', '9.9.9', '9.9.9', $1)`, [url])),
+    /permission denied/,
+  );
+
+  // Sem min_version, a atualização é obrigatória (mínimo = a própria versão).
+  const first = await as(DEV, (tx) => tx.query(`select * from public.publish_app_release('android', '1.0.2', $1, 'Novidades')`, [url]));
+  assert.equal(first.rows[0].min_supported_version, '1.0.2');
+  await as(DEV, (tx) =>
+    tx.query(`select public.publish_app_release('android', '1.0.10', $1, null, '1.0.2')`, [url.replace(/1\.0\.2/g, '1.0.10')]),
+  );
+  await assert.rejects(
+    as(DEV, (tx) => tx.query(`select public.publish_app_release('android', '1.0.9', $1)`, [url])),
+    /precisa ser maior/,
+  );
+  await assert.rejects(
+    as(DEV, (tx) => tx.query(`select public.publish_app_release('android', '1.1.0', 'http://inseguro.com/a.apk')`)),
+    /app_releases_url_format/,
+  );
+  await assert.rejects(
+    as(DEV, (tx) => tx.query(`select public.publish_app_release('android', '1.2.0', $1, null, '1.3.0')`, [url])),
+    /app_releases_min_not_above/,
+  );
+
+  // A mais nova em ordem numérica (1.0.10 > 1.0.2), lida por visitante e por conta logada.
+  const latest = await asAnon((tx) => tx.query(`select version, min_supported_version from public.latest_app_release('android')`));
+  assert.deepEqual(latest.rows, [{ version: '1.0.10', min_supported_version: '1.0.2' }]);
+  const ios = await as(ANA, (tx) => tx.query(`select * from public.latest_app_release('ios')`));
+  assert.equal(ios.rows.length, 0);
+});

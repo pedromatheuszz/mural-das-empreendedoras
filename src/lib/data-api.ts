@@ -16,7 +16,8 @@ export const db = new PostgrestClient<Database>(
   {
     timeout: 20_000,
     fetch: async (input, init) => {
-      const token = await neonAuth.getAccessToken();
+      // Logada: token da conta. Sem login: token anônimo (só dados públicos, pela RLS).
+      const token = (await neonAuth.getAccessToken()) ?? (await neonAuth.getAnonymousToken());
       const headers = new Headers(init?.headers);
       if (token) headers.set('Authorization', `Bearer ${token}`);
       const response = await fetch(input, { ...init, headers }).catch((error: unknown) => {

@@ -215,6 +215,9 @@ async function afterSignIn(): Promise<AuthSession> {
 let restoring: Promise<AuthSession | null> | null = null;
 /** Pedido de JWT em andamento (várias telas pedindo ao mesmo tempo fazem uma chamada só). */
 let tokenRequest: Promise<string | null> | null = null;
+/** Token anônimo (visitante sem login): lê só o que é público, como a versão mais nova do app. */
+let anonymousJwt: { token: string; expiresAt: number } | null = null;
+let anonymousRequest: Promise<string | null> | null = null;
 
 async function restore(): Promise<AuthSession | null> {
   await loadCookies();
@@ -264,6 +267,21 @@ export const neonAuth = {
   },
 
   /** JWT para a Data API. Renova sozinho quando está perto de expirar. */
+  /** Token de visitante, usado quando não há sessão (ex.: checar atualização na tela de login). */
+  async getAnonymousToken(): Promise<string | null> {
+    if (anonymousJwt && anonymousJwt.expiresAt - JWT_SAFETY_MS > Date.now()) return anonymousJwt.token;
+    anonymousRequest ??= request<{ token?: string }>('/token/anonymous', { method: 'GET' })
+      .then(({ data }) => {
+        anonymousJwt = data?.token ? { token: data.token, expiresAt: decodeJwtExpiry(data.token) } : null;
+        return anonymousJwt?.token ?? null;
+      })
+      .catch(() => null)
+      .finally(() => {
+        anonymousRequest = null;
+      });
+    return anonymousRequest;
+  },
+
   async getAccessToken(): Promise<string | null> {
     // Uma tela aberta direto (link, recarregar a página) não pode sair sem o token
     // enquanto a sessão salva ainda está sendo restaurada.

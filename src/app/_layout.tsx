@@ -17,6 +17,7 @@ import { BrandSplash } from '@/components/brand-splash';
 import { ConfigErrorScreen } from '@/components/config-error-screen';
 import { DialogProvider } from '@/components/feedback/dialog-provider';
 import { ToastProvider } from '@/components/feedback/toast-provider';
+import { UpdateGate } from '@/components/updates/update-gate';
 import { colors } from '@/constants/theme';
 import { envProblem } from '@/lib/env';
 import { queryClient } from '@/lib/query-client';
@@ -66,6 +67,8 @@ export default function RootLayout() {
                     só renderiza as telas com as fontes prontas (a splash nativa cobre a espera). */}
                   {fontsReady ? envProblem ? <ConfigErrorScreen problem={envProblem} /> : <RootNavigator /> : null}
                   {fontsReady ? <SplashGate fontsReady={fontsReady} /> : null}
+                  {/* Atualização do app publicada pelo desenvolvedor (npm run release). */}
+                  {fontsReady && !envProblem ? <UpdateGate /> : null}
                 </OnboardingProvider>
               </AuthProvider>
             </DialogProvider>

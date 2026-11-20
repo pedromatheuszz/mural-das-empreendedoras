@@ -67,7 +67,8 @@
     "db:migrate": "node --env-file=.env scripts/db-migrate.mjs",
     "dev:account": "node --env-file=.env scripts/create-dev-account.mjs",
     "photos:upload": "node --env-file=.env scripts/upload-seed-images.mjs",
-    "role": "node --env-file=.env scripts/set-role.mjs"
+    "role": "node --env-file=.env scripts/set-role.mjs",
+    "release": "node --env-file=.env scripts/release.mjs"
   },
   "private": true,
   "jest": {

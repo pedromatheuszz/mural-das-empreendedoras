@@ -128,6 +128,21 @@ export type Database = {
           },
         ];
       };
+      app_releases: {
+        Row: {
+          id: string;
+          platform: 'android' | 'ios';
+          version: string;
+          min_supported_version: string;
+          download_url: string;
+          release_notes: string | null;
+          published_by: string | null;
+          created_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       profile_claims: {
         Row: {
           id: string;
@@ -262,6 +277,20 @@ export type Database = {
         Returns: undefined;
       };
       link_profile_to_account: { Args: { target_profile_id: string; target_email: string }; Returns: undefined };
+      latest_app_release: {
+        Args: { target_platform: 'android' | 'ios' };
+        Returns: {
+          version: string;
+          min_supported_version: string;
+          download_url: string;
+          release_notes: string | null;
+          created_at: string;
+        }[];
+      };
+      publish_app_release: {
+        Args: { target_platform: 'android' | 'ios'; new_version: string; url: string; notes?: string | null; min_version?: string | null };
+        Returns: Database['public']['Tables']['app_releases']['Row'];
+      };
       list_open_reports: {
         Args: { page_size?: number };
         Returns: {
