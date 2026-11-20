@@ -21,13 +21,34 @@ export function isLocalImage(uri: string | null | undefined): uri is string {
   return typeof uri === 'string' && uri.length > 0 && !/^https?:\/\//i.test(uri);
 }
 
-/** Reduz e comprime a imagem escolhida antes do envio (economia de dados e de armazenamento). */
-export async function optimizeImage(uri: string, kind: ImageKind, width?: number): Promise<string> {
-  const target = Math.min(width && width > 0 ? width : MAX_DIMENSION[kind], MAX_DIMENSION[kind]);
-  const context = ImageManipulator.manipulate(uri);
-  context.resize({ width: target, height: null });
+/** Recorte quadrado centralizado (a maior área quadrada possível da imagem). */
+export function centerSquare(width: number, height: number) {
+  const side = Math.min(width, height);
+  return {
+    originX: Math.floor((width - side) / 2),
+    originY: Math.floor((height - side) / 2),
+    width: side,
+    height: side,
+  };
+}
+
+/**
+ * Prepara a imagem escolhida: recorta em quadrado pelo centro, reduz e comprime antes do envio.
+ * O recorte é automático, sem a tela de recorte do sistema (que confundia e descartava a imagem
+ * quando a usuária voltava sem tocar em "Cortar"). Logos ficam em PNG para manter fundo transparente.
+ */
+export async function optimizeImage(uri: string, kind: ImageKind): Promise<string> {
+  // Carrega primeiro para ter as dimensões reais, já com a rotação da foto aplicada.
+  const original = await ImageManipulator.manipulate(uri).renderAsync();
+  const square = centerSquare(original.width, original.height);
+  const context = ImageManipulator.manipulate(original);
+  context.crop(square);
+  if (square.width > MAX_DIMENSION[kind]) context.resize({ width: MAX_DIMENSION[kind], height: MAX_DIMENSION[kind] });
   const rendered = await context.renderAsync();
-  const result = await rendered.saveAsync({ format: SaveFormat.JPEG, compress: 0.8 });
+  const result =
+    kind === 'logo'
+      ? await rendered.saveAsync({ format: SaveFormat.PNG })
+      : await rendered.saveAsync({ format: SaveFormat.JPEG, compress: 0.8 });
   return result.uri;
 }
 
@@ -40,7 +61,8 @@ export async function uploadProfileImage(userId: string, localUri: string, kind:
   if (!isCloudinaryConfigured) {
     throw new AppError('O envio de imagens ainda não foi configurado. Salve o perfil sem imagem por enquanto.');
   }
-  const name = `${kind}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+  const isPng = /\.png($|\?)/i.test(localUri);
+  const name = `${kind}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${isPng ? 'png' : 'jpg'}`;
   const form = new FormData();
   if (Platform.OS === 'web') {
     const blob = await (await fetch(localUri)).blob();
@@ -48,7 +70,7 @@ export async function uploadProfileImage(userId: string, localUri: string, kind:
     form.append('file', blob, name);
   } else {
     // React Native envia o arquivo direto do disco, sem carregá-lo na memória do JS.
-    form.append('file', { uri: localUri, name, type: 'image/jpeg' } as unknown as Blob);
+    form.append('file', { uri: localUri, name, type: isPng ? 'image/png' : 'image/jpeg' } as unknown as Blob);
   }
   form.append('upload_preset', env.cloudinaryUploadPreset);
   form.append('folder', userFolder(userId));

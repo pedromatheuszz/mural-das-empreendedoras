@@ -31,17 +31,11 @@ export function ImagePickerField({ kind, label, helper, value, onChange, name }:
 
   const pick = async () => {
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        allowsEditing: true,
-        aspect: [1, 1],
-        shape: kind === 'photo' ? 'oval' : 'rectangle',
-        quality: 1,
-      });
+      // Sem a tela de recorte do sistema: o recorte quadrado é feito automaticamente.
+      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
       if (result.canceled || !result.assets[0]) return;
       setProcessing(true);
-      const asset = result.assets[0];
-      const optimized = await optimizeImage(asset.uri, kind, asset.width);
+      const optimized = await optimizeImage(result.assets[0].uri, kind);
       onChange(optimized);
     } catch {
       toast.error('Não foi possível usar esta imagem. Tente outra, nos formatos JPG ou PNG.');

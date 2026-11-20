@@ -181,7 +181,7 @@ export function ImagesFields({ control }: { control: FormControl }) {
       <ImagePickerField
         kind="logo"
         label="Logotipo ou imagem da marca"
-        helper="Imagem quadrada, de preferência com fundo claro."
+        helper="Será cortada em quadrado pelo centro. PNG com fundo transparente também funciona."
         value={logo.field.value ?? null}
         onChange={logo.field.onChange}
         name={businessName || 'Sua marca'}
