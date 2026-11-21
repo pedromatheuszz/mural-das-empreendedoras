@@ -1,3 +1,4 @@
+import { File } from 'expo-file-system';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { Platform } from 'react-native';
 
@@ -69,8 +70,12 @@ export async function uploadProfileImage(userId: string, localUri: string, kind:
     if (blob.size > MAX_BYTES) throw new AppError('A imagem é grande demais. Escolha uma imagem menor que 5 MB.');
     form.append('file', blob, name);
   } else {
-    // React Native envia o arquivo direto do disco, sem carregá-lo na memória do JS.
-    form.append('file', { uri: localUri, name, type: isPng ? 'image/png' : 'image/jpeg' } as unknown as Blob);
+    // O fetch do Expo (SDK 52+) não aceita o formato antigo { uri, name, type } do React Native
+    // ("Unsupported FormDataPart implementation"): o arquivo vai como File do expo-file-system.
+    const file = new File(localUri);
+    if (!file.exists) throw new AppError('Não foi possível ler a imagem escolhida. Escolha a imagem novamente.');
+    if (file.size > MAX_BYTES) throw new AppError('A imagem é grande demais. Escolha uma imagem menor que 5 MB.');
+    form.append('file', file as unknown as Blob, name);
   }
   form.append('upload_preset', env.cloudinaryUploadPreset);
   form.append('folder', userFolder(userId));
@@ -82,7 +87,8 @@ export async function uploadProfileImage(userId: string, localUri: string, kind:
       method: 'POST',
       body: form,
     });
-  } catch {
+  } catch (error) {
+    if (__DEV__) console.warn('[upload] falha', String(error));
     throw new AppError('Não foi possível enviar a imagem. Verifique sua internet e tente novamente.');
   }
   const data = (await response.json().catch(() => ({}))) as CloudinaryUpload;
