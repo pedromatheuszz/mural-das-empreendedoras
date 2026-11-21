@@ -5,8 +5,29 @@ aviso assim que abre o app ou volta para ele (a checagem também roda a cada 30 
 
 | Tipo | O que a usuária vê |
 | --- | --- |
-| **Obrigatória** (padrão) | Tela cheia "Atualize o Mural das Empreendedoras" com o botão **Baixar atualização**. Não fecha, nem pelo botão voltar, até instalar a versão nova. |
-| **Opcional** (`--opcional`) | Aviso "Nova versão disponível" com **Atualizar** / **Agora não**. "Agora não" não pergunta de novo para a mesma versão. |
+| **Obrigatória** (padrão) | Tela cheia "Atualize o Mural das Empreendedoras" com o botão **Baixar atualização**. O download acontece ali mesmo e a tela não fecha, nem pelo botão voltar, até instalar a versão nova. |
+| **Opcional** (`--opcional`) | Aviso "Nova versão disponível" com **Atualizar** / **Agora não**. "Agora não" não pergunta de novo para a mesma versão. **Atualizar** abre o painel de download, que pode ir para **Segundo plano**: um indicador no topo mostra a porcentagem e, quando o download termina, o painel volta com **Instalar atualização**. |
+
+### Download dentro do app (Android, a partir da 1.0.5)
+
+O APK é baixado pelo próprio app. Um cartão escuro mostra:
+
+- a porcentagem e a barra de progresso;
+- quanto já foi baixado, a velocidade e o tempo restante;
+- os botões **Pausar** / **Continuar**.
+
+Quando termina, o botão **Instalar atualização** abre o instalador do Android com o APK baixado.
+
+Na primeira vez, o Android pede para "permitir apps desta fonte". Depois de permitir, basta tocar em Instalar de novo. A permissão `REQUEST_INSTALL_PACKAGES` está no `app.json`.
+
+Se o download falhar, aparece **Tentar novamente** e **Pelo navegador**, que é o caminho antigo.
+
+No iOS, o botão continua abrindo o link.
+
+O código está em:
+
+- `src/services/apk-download.service.ts`: download, pausa e instalação;
+- `src/components/updates/update-download-panel.tsx`: o cartão, a folha e o indicador.
 
 ## Como publicar uma versão (Android)
 
@@ -46,7 +67,7 @@ Requisitos (uma vez só):
   - Abaixo da versão mínima: a atualização é obrigatória.
   - Abaixo da última versão: a atualização é opcional.
   - Sem login, o app usa o token anônimo do Neon Auth.
-- **Instalação:** o Android baixa o APK pelo navegador. Na primeira vez, pode pedir permissão para "instalar apps desta fonte". Como o APK é assinado com a mesma chave, a instalação substitui o app e mantém os dados.
+- **Instalação:** na 1.0.4 e anteriores, o Android baixa o APK pelo navegador. A partir da 1.0.5, o APK é baixado dentro do app. Na primeira vez, o Android pode pedir permissão para "instalar apps desta fonte". Como o APK é assinado com a mesma chave, a instalação substitui o app e mantém os dados.
 
 > Os aparelhos com a **1.0.1 ou anterior** não têm essa checagem. Eles precisam instalar a 1.0.2 manualmente, uma
 > única vez. Da 1.0.2 em diante, as atualizações passam a ser avisadas pelo app.

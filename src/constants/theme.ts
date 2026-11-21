@@ -68,6 +68,17 @@ export const colors = {
   /** Véu da barra de abas flutuante sobre o desfoque. */
   backgroundVeil: 'rgba(251, 249, 253, 0.95)',
 
+  /** Cartão escuro (download da atualização). */
+  inverseSurface: '#1A1026',
+  inverseSurfaceRaised: 'rgba(255, 255, 255, 0.06)',
+  inverseBorder: 'rgba(255, 255, 255, 0.10)',
+  inverseText: palette.white,
+  inverseTextSecondary: 'rgba(255, 255, 255, 0.68)',
+  inverseAccent: palette.lilac300,
+  inverseTrack: 'rgba(255, 255, 255, 0.10)',
+  inverseDanger: '#FF7A90',
+  inverseDangerSoft: 'rgba(255, 122, 144, 0.10)',
+
   overlay: 'rgba(35, 33, 38, 0.45)',
   scrim: 'rgba(35, 33, 38, 0.55)',
 } as const;

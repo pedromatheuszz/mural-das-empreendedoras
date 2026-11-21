@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery } from '@tanstack/react-query';
 import * as Linking from 'expo-linking';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Modal, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,7 +14,9 @@ import { Button } from '@/components/ui/button';
 import { APP_NAME } from '@/constants/app';
 import { DIALOG_ENTER } from '@/constants/motion';
 import { colors, MAX_CONTENT_WIDTH, radius, spacing } from '@/constants/theme';
+import { useApkDownload } from '@/hooks/use-apk-download';
 import { preferences } from '@/lib/secure-storage';
+import { apkDownload, canDownloadInApp } from '@/services/apk-download.service';
 import {
   getLatestRelease,
   getUpdateStatus,
@@ -22,6 +24,8 @@ import {
   updatePlatform,
   type AppRelease,
 } from '@/services/updates.service';
+
+import { UpdateDownloadPanel, UpdateDownloadPill, UpdateDownloadSheet } from './update-download-panel';
 
 export const updateKeys = { latest: ['app-release', updatePlatform ?? 'web'] as const };
 
@@ -40,10 +44,31 @@ export function UpdateGate() {
     refetchInterval: 30 * 60_000,
   });
   const status = getUpdateStatus(installedVersion, release ?? null);
+  const download = useApkDownload();
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [doneDismissed, setDoneDismissed] = useState(false);
+  // Download em segundo plano terminou: o painel abre sozinho com "Instalar atualização".
+  const sheetVisible = sheetOpen || (download.status === 'done' && !doneDismissed);
+  const closeSheet = () => {
+    setSheetOpen(false);
+    if (download.status === 'done') setDoneDismissed(true);
+  };
 
   return (
     <>
-      {status === 'available' && release ? <OptionalUpdatePrompt release={release} /> : null}
+      {status === 'available' && release ? (
+        <>
+          <OptionalUpdatePrompt
+            release={release}
+            onStartDownload={() => {
+              setSheetOpen(true);
+              void apkDownload.start(release);
+            }}
+          />
+          <UpdateDownloadSheet release={release} visible={sheetVisible} onClose={closeSheet} />
+          {!sheetVisible ? <UpdateDownloadPill onPress={() => setSheetOpen(true)} /> : null}
+        </>
+      ) : null}
       <Modal
         visible={status === 'required'}
         animationType="fade"
@@ -70,7 +95,11 @@ function useOpenDownload(release: AppRelease) {
 
 function RequiredUpdateScreen({ release }: { release: AppRelease }) {
   const insets = useSafeAreaInsets();
-  const download = useOpenDownload(release);
+  const openLink = useOpenDownload(release);
+  const progress = useApkDownload();
+  const downloading = canDownloadInApp && progress.version === release.version && progress.status !== 'idle';
+  // Android: baixa dentro do app com progresso; iOS: abre o link.
+  const download = canDownloadInApp ? () => void apkDownload.start(release) : openLink;
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top + spacing.xl, paddingBottom: insets.bottom + spacing.lg }]}>
@@ -100,17 +129,21 @@ function RequiredUpdateScreen({ release }: { release: AppRelease }) {
           </View>
         ) : null}
 
-        {Platform.OS === 'android' ? (
+        {downloading ? (
+          <UpdateDownloadPanel release={release} mandatory />
+        ) : Platform.OS === 'android' ? (
           <View style={styles.steps}>
-            <Step number={1} text="Toque em “Baixar atualização”." />
-            <Step number={2} text="Abra o arquivo baixado e toque em “Instalar”." />
-            <Step number={3} text="Se o Android pedir, permita instalar apps desta fonte. Seus dados continuam salvos." />
+            <Step number={1} text="Toque em “Baixar atualização” e acompanhe o download aqui mesmo." />
+            <Step number={2} text="Quando terminar, toque em “Instalar atualização” e confirme no Android." />
+            <Step number={3} text="Se o Android pedir, permita instalar apps do Mural. Seus dados continuam salvos." />
           </View>
         ) : null}
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button title="Baixar atualização" icon="download-outline" onPress={download} fullWidth />
+        {downloading ? null : (
+          <Button title="Baixar atualização" icon="download-outline" onPress={download} fullWidth />
+        )}
         <AppText variant="caption" color={colors.textMuted} align="center">
           Versão instalada: {installedVersion}
         </AppText>
@@ -135,9 +168,10 @@ function Step({ number, text }: { number: number; text: string }) {
 }
 
 /** Atualização opcional: um aviso por versão; "Agora não" não pergunta de novo para a mesma versão. */
-function OptionalUpdatePrompt({ release }: { release: AppRelease }) {
+function OptionalUpdatePrompt({ release, onStartDownload }: { release: AppRelease; onStartDownload: () => void }) {
   const dialog = useDialog();
-  const download = useOpenDownload(release);
+  const openLink = useOpenDownload(release);
+  const download = canDownloadInApp ? onStartDownload : openLink;
   const asked = useRef<string | null>(null);
 
   useEffect(() => {

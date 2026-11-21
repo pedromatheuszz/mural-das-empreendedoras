@@ -39,7 +39,10 @@
         "android.permission.READ_MEDIA_AUDIO"
       ],
       "predictiveBackGestureEnabled": false,
-      "versionCode": 5
+      "versionCode": 5,
+      "permissions": [
+        "android.permission.REQUEST_INSTALL_PACKAGES"
+      ]
     },
     "web": {
       "output": "single",
