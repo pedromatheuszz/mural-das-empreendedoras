@@ -68,10 +68,10 @@ export function UpdateDownloadPanel({ release, mandatory, onBackground }: PanelP
   return (
     <Animated.View entering={FADE_IN} style={styles.card}>
       <View style={styles.header}>
-        <AppText variant="heading" color={colors.inverseText} accessibilityRole="header">
+        <AppText variant="heading" color={colors.text} accessibilityRole="header">
           {TITLES[download.status]}
         </AppText>
-        <AppText variant="bodyStrong" color={colors.inverseAccent}>
+        <AppText variant="bodyStrong" color={colors.accentText}>
           Versão {release.version}
         </AppText>
       </View>
@@ -83,10 +83,10 @@ export function UpdateDownloadPanel({ release, mandatory, onBackground }: PanelP
         accessibilityLabel="Progresso do download"
         accessibilityValue={{ min: 0, max: 100, now: percent }}
       >
-        <AppText style={styles.percent} color={colors.inverseText}>
+        <AppText style={styles.percent} color={colors.text}>
           {percent}
         </AppText>
-        <AppText style={styles.percentSign} color={colors.inverseTextSecondary}>
+        <AppText style={styles.percentSign} color={colors.textSecondary}>
           %
         </AppText>
       </View>
@@ -96,7 +96,7 @@ export function UpdateDownloadPanel({ release, mandatory, onBackground }: PanelP
       </View>
 
       {download.status === 'error' ? (
-        <AppText variant="small" color={colors.inverseDanger}>
+        <AppText variant="small" color={colors.danger}>
           {download.error}
         </AppText>
       ) : (
@@ -123,7 +123,7 @@ export function UpdateDownloadPanel({ release, mandatory, onBackground }: PanelP
         </View>
       )}
 
-      <AppText variant="small" color={colors.inverseTextSecondary}>
+      <AppText variant="small" color={colors.textSecondary}>
         {done
           ? 'Toque em “Instalar atualização” e confirme no Android. Sua conta e seu perfil continuam salvos. Se o Android pedir, permita instalar apps do Mural e toque em Instalar de novo.'
           : mandatory
@@ -165,14 +165,14 @@ export function UpdateDownloadPanel({ release, mandatory, onBackground }: PanelP
 function Stat({ label, value, detail }: { label: string; value: string; detail?: string }) {
   return (
     <View style={styles.stat}>
-      <AppText variant="caption" color={colors.inverseTextSecondary} numberOfLines={1}>
+      <AppText variant="caption" color={colors.textSecondary} numberOfLines={1}>
         {label}
       </AppText>
-      <AppText variant="subtitle" color={colors.inverseText} numberOfLines={1} adjustsFontSizeToFit>
+      <AppText variant="subtitle" color={colors.text} numberOfLines={1} adjustsFontSizeToFit>
         {value}
       </AppText>
       {detail ? (
-        <AppText variant="caption" color={colors.inverseTextSecondary} numberOfLines={1}>
+        <AppText variant="caption" color={colors.textSecondary} numberOfLines={1}>
           {detail}
         </AppText>
       ) : null}
@@ -195,8 +195,7 @@ function PanelButton({
   onPress: () => void;
   grow?: boolean;
 }) {
-  const textColor =
-    tone === 'primary' ? colors.primaryDeep : tone === 'danger' ? colors.inverseDanger : colors.inverseText;
+  const textColor = tone === 'primary' ? colors.onPrimary : tone === 'danger' ? colors.danger : colors.text;
   return (
     <PressableScale
       onPress={onPress}
@@ -257,9 +256,9 @@ export function UpdateDownloadPill({ onPress }: { onPress: () => void }) {
           <Ionicons
             name={done ? 'checkmark-circle' : download.status === 'paused' ? 'pause' : 'cloud-download-outline'}
             size={16}
-            color={colors.inverseAccent}
+            color={colors.primary}
           />
-          <AppText variant="smallStrong" color={colors.inverseText}>
+          <AppText variant="smallStrong" color={colors.text}>
             {label}
           </AppText>
           <View style={styles.pillTrack}>
@@ -276,9 +275,10 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.xl,
     borderRadius: radius.xxl,
-    backgroundColor: colors.inverseSurface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: colors.inverseBorder,
+    borderColor: colors.border,
+    ...shadows.raised,
     width: '100%',
     maxWidth: MAX_CONTENT_WIDTH,
     alignSelf: 'center',
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   track: {
     height: 12,
     borderRadius: radius.pill,
-    backgroundColor: colors.inverseTrack,
+    backgroundColor: colors.surfaceSunken,
     overflow: 'hidden',
   },
   fill: {
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     borderRadius: radius.pill,
-    backgroundColor: colors.inverseAccent,
+    backgroundColor: colors.primary,
   },
   stats: {
     flexDirection: 'row',
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
     gap: 2,
     padding: spacing.sm,
     borderRadius: radius.lg,
-    backgroundColor: colors.inverseSurfaceRaised,
+    backgroundColor: colors.surfaceMuted,
   },
   actions: {
     flexDirection: 'row',
@@ -344,16 +344,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   button_primary: {
-    backgroundColor: colors.inverseAccent,
-    borderColor: colors.inverseAccent,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   button_neutral: {
-    backgroundColor: colors.inverseSurfaceRaised,
-    borderColor: colors.inverseBorder,
+    backgroundColor: colors.surfaceMuted,
+    borderColor: colors.border,
   },
   button_danger: {
-    backgroundColor: colors.inverseDangerSoft,
-    borderColor: colors.inverseDangerSoft,
+    backgroundColor: colors.dangerSoft,
+    borderColor: colors.dangerSoft,
   },
   buttonPressed: {
     opacity: 0.85,
@@ -382,16 +382,16 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.md,
     borderRadius: radius.pill,
-    backgroundColor: colors.inverseSurface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: colors.inverseBorder,
+    borderColor: colors.border,
     ...shadows.floating,
   },
   pillTrack: {
     width: 48,
     height: 6,
     borderRadius: radius.pill,
-    backgroundColor: colors.inverseTrack,
+    backgroundColor: colors.surfaceSunken,
     overflow: 'hidden',
   },
 });

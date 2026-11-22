@@ -10,7 +10,7 @@ aviso assim que abre o app ou volta para ele (a checagem também roda a cada 30 
 
 ### Download dentro do app (Android, a partir da 1.0.5)
 
-O APK é baixado pelo próprio app. Um cartão escuro mostra:
+O APK é baixado pelo próprio app. Um cartão com as cores do app mostra:
 
 - a porcentagem e a barra de progresso;
 - quanto já foi baixado, a velocidade e o tempo restante;
